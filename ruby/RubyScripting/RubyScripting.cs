@@ -4,13 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Scripting.Hosting;
-	using System.Security.Policy;
-	using System.Reflection;
-	using System.Security.Permissions;
-	using System.Security;
+using System.Security.Policy;
+using System.Reflection;
+using System.Security.Permissions;
+using System.Security;
 
-public class RubyScripting : IDisposable {
-	public RubyScripting(Assembly[] trusted) {
+/// <summary>
+/// Main entry point for accessing the Ruby scripting plug-in for Climoo.
+/// </summary>
+public class RubyScripting {
+	/// <summary>
+	/// Creates a new scripting context.
+	/// </summary>
+	/// <param name="trusted">A list of assemblies that are to be fully trusted when called.</param>
+	/// <returns>The new scripting context</returns>
+	static public Context CreateContext(Assembly[] trusted) {
 		// Grant only execute permissions.
 		PermissionSet pset = new PermissionSet(PermissionState.None);
 		pset.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));
@@ -22,7 +30,7 @@ public class RubyScripting : IDisposable {
 		names[trusted.Length] = CreateStrongName(Assembly.GetExecutingAssembly());
 
 		// Create a new AppDomain with restricted execution abilities.
-		_domain = AppDomain.CreateDomain("ScriptingDomain",
+		AppDomain domain = AppDomain.CreateDomain("ScriptingDomain",
 			AppDomain.CurrentDomain.Evidence,
 			new AppDomainSetup() { ApplicationBase = Environment.CurrentDirectory },
 			pset,
@@ -38,31 +46,15 @@ public class RubyScripting : IDisposable {
 				new string[] { "IronRuby", "Ruby", "rb" },
 				new string[] { ".rb" })
 		);
-		var runtime = ScriptRuntime.CreateRemote(_domain, setup);
-		_engine = runtime.GetEngine("Ruby");
+		var runtime = ScriptRuntime.CreateRemote(domain, setup);
+		ScriptEngine engine = runtime.GetEngine("Ruby");
 
 		// Add us to the app domain.
 		var myName = Assembly.GetExecutingAssembly().FullName;
-		_domain.Load(myName);
-	}
+		domain.Load(myName);
 
-	public void Dispose() {
-		if (_domain != null) {
-			AppDomain.Unload(_domain);
-			_domain = null;
-		}
+		return new Context(domain, engine);
 	}
-
-	public ScriptSource loadScriptFromFile(string filename) {
-		return _engine.CreateScriptSourceFromFile(filename);
-	}
-
-	public ScriptSource loadScriptFromString(string code) {
-		return _engine.CreateScriptSourceFromFile(code);
-	}
-
-	AppDomain _domain;
-	ScriptEngine _engine;
 
 	#region Utils
 	/// <summary>
