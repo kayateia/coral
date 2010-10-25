@@ -30,10 +30,10 @@ public class SandboxBinder : IObjectBinder {
 	}
 
 	public IObjectBind BindToMethod(object target, string methodName, Type[] genericParameters, object[] arguments) {
-		if (target is IDynamicObject) {
+		var dyn = target as IDynamicObject;
+		if (dyn != null && !dyn.isMethodPassthrough(methodName)) {
 			if (genericParameters != null && genericParameters.Length > 0)
 				return null;
-			var dyn = target as IDynamicObject;
 			if (!dyn.hasMethod(methodName, arguments))
 				return null;
 
@@ -43,14 +43,15 @@ public class SandboxBinder : IObjectBinder {
 	}
 
 	public IObjectBind BindToMethod(object target, MethodInfo method, object[] arguments) {
-		if (target is IDynamicObject)
+		var dyn = target as IDynamicObject;
+		if (dyn != null && !dyn.isMethodPassthrough(method.Name))
 			return null;
 		return _orig.BindToMethod(target, method, arguments);
 	}
 
 	public IMemberBind BindToMember(object target, string memberName, bool throwNotFound) {
-		if (target is IDynamicObject) {
-			var dyn = target as IDynamicObject;
+		var dyn = target as IDynamicObject;
+		if (dyn != null && !dyn.isMemberPassthrough(memberName)) {
 			if (!dyn.hasMember(memberName)) {
 				if (throwNotFound)
 					throw new DynamicObjectFailure("Can't find member", memberName);

@@ -29,6 +29,12 @@ public class DynamicObjectFailure : System.Exception {
 /// </summary>
 public interface IDynamicObject {
 	/// <summary>
+	/// Returns true if requests for this member should be passed on to the
+	/// default scripting binder (i.e. accessed as a .NET member).
+	/// </summary>
+	bool isMemberPassthrough(string name);
+
+	/// <summary>
 	/// Returns the member variable with the given name.
 	/// </summary>
 	/// <exception cref="DynamicObjectFailure">If the member can't be found.</exception>
@@ -71,6 +77,12 @@ public interface IDynamicObject {
 	/// Returns true if callMethod(name, args) would succeed.
 	/// </summary>
 	bool hasMethod(string name, object[] args);
+
+	/// <summary>
+	/// Returns true if requests for this method should be passed on to the
+	/// default scripting binder (i.e. accessed as a .NET method).
+	/// </summary>
+	bool isMethodPassthrough(string name);
 
 	/// <summary>
 	/// Calls a method.

@@ -16,7 +16,7 @@ public class Scope {
 		RuntimeHost.InitializeScript(_context);
 	}
 
-	public void add(string name, object value) {
+	public void set(string name, object value) {
 		_context.SetItem(name, value);
 	}
 

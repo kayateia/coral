@@ -21,9 +21,6 @@ public class SSharpScripting {
 		// Replace the binder with our own, which allows using MOO objects as 'dynamic'
 		// style objects, and so forth.
 		RuntimeHost.Binder = new SandboxBinder(RuntimeHost.Binder);
-
-		Script s = Script.Compile("1+1");
-		System.Diagnostics.Debug.WriteLine(s.Execute());
 	}
 }
 
