@@ -7,15 +7,20 @@ using ScriptNET.Runtime;
 
 internal class DynamicMethodBinding : IObjectBind {
 	public DynamicMethodBinding(IDynamicObject target, string name) {
+		_target = target;
+		_name = name;
 	}
 
 	public bool CanInvoke() {
-		throw new NotImplementedException();
+		return _target.hasMethod(_name);
 	}
 
 	public object Invoke(IScriptContext context, object[] args) {
-		throw new NotImplementedException();
+		return _target.callMethod(new Scope(context), _name, args);
 	}
+
+	IDynamicObject _target;
+	string _name;
 }
 
 }

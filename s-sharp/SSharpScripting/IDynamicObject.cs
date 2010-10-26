@@ -74,9 +74,9 @@ public interface IDynamicObject {
 	void setMimeType(string name, string type);
 
 	/// <summary>
-	/// Returns true if callMethod(name, args) would succeed.
+	/// Returns true if callMethod(name) would succeed.
 	/// </summary>
-	bool hasMethod(string name, object[] args);
+	bool hasMethod(string name);
 
 	/// <summary>
 	/// Returns true if requests for this method should be passed on to the
@@ -87,11 +87,12 @@ public interface IDynamicObject {
 	/// <summary>
 	/// Calls a method.
 	/// </summary>
+	/// <param name="scope">Scripting scope</param>
 	/// <param name="name">Method name</param>
 	/// <param name="args">Arguments to the method</param>
 	/// <returns>The return value of the method</returns>
 	/// <exception cref="DynamicObjectFailure">If the method can't be called.</exception>
-	object callMethod(string name, object[] args);
+	object callMethod(Scope scope, string name, object[] args);
 }
 
 }

@@ -23,9 +23,9 @@ public class ScriptFragment {
 	}
 	string _code;
 
-	public void execute(Scope scope) {
+	public object execute(Scope scope) {
 		Script recontexted =_compiled.DuplicateWithNewContext(scope.context);
-		recontexted.Execute();
+		return recontexted.Execute();
 	}
 
 	Script _compiled;

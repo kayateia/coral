@@ -34,7 +34,7 @@ public class SandboxBinder : IObjectBinder {
 		if (dyn != null && !dyn.isMethodPassthrough(methodName)) {
 			if (genericParameters != null && genericParameters.Length > 0)
 				return null;
-			if (!dyn.hasMethod(methodName, arguments))
+			if (!dyn.hasMethod(methodName))
 				return null;
 
 			return new DynamicMethodBinding(dyn, methodName);

@@ -12,8 +12,12 @@ using ScriptNET.Runtime;
 /// </summary>
 public class Scope {
 	public Scope() {
-		_context = new ScriptNET.Runtime.ScriptContext();
+		_context = new ScriptContext();
 		RuntimeHost.InitializeScript(_context);
+	}
+
+	internal Scope(IScriptContext context) {
+		_context = context;
 	}
 
 	public void set(string name, object value) {
@@ -29,11 +33,11 @@ public class Scope {
 		return _context.GetItem(name, false);
 	}
 
-	internal ScriptNET.Runtime.ScriptContext context {
+	internal IScriptContext context {
 		get { return _context; }
 	}
 
-	ScriptNET.Runtime.ScriptContext _context;
+	IScriptContext _context;
 }
 
 }
