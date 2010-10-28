@@ -45,7 +45,7 @@ public class SandboxAssemblyManager : IAssemblyManager {
 	}
 
 	public void AddType(string alias, Type type) {
-		throw new NotImplementedException();
+		_orig.AddType(alias, type);
 	}
 
 	public event EventHandler<AssemblyHandlerEventArgs> BeforeAddAssembly;
@@ -53,7 +53,9 @@ public class SandboxAssemblyManager : IAssemblyManager {
 	public event EventHandler<AssemblyHandlerEventArgs> BeforeAddType;
 
 	public void Dispose() {
-		throw new NotImplementedException();
+		if (_orig != null)
+			_orig.Dispose();
+		_orig = null;
 	}
 }
 

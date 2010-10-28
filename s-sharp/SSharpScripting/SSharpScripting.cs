@@ -22,6 +22,16 @@ public class SSharpScripting {
 		// style objects, and so forth.
 		RuntimeHost.Binder = new SandboxBinder(RuntimeHost.Binder);
 	}
+
+	static public void AllowAssembly(System.Reflection.Assembly assembly) {
+		RuntimeHost.AssemblyManager.AddAssembly(assembly);
+	}
+
+	static public void AllowType(System.Type type, string alias = null) {
+		if (alias == null)
+			alias = type.Name;
+		RuntimeHost.AssemblyManager.AddType(alias, type);
+	}
 }
 
 }
