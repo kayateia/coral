@@ -51,15 +51,9 @@ public class SandboxBinder : IObjectBinder {
 
 	public IMemberBind BindToMember(object target, string memberName, bool throwNotFound) {
 		var dyn = target as IDynamicObject;
-		if (dyn != null && !dyn.isMemberPassthrough(memberName)) {
-			/* if (!dyn.hasMember(memberName)) {
-				if (throwNotFound)
-					throw new DynamicObjectFailure("Can't find member", memberName);
-				else
-					return null;
-			} */
+		if (dyn != null && !dyn.isMemberPassthrough(memberName))
 			return new DynamicMemberBinding(dyn, memberName);
-		} else
+		else
 			return _orig.BindToMember(target, memberName, throwNotFound);
 	}
 
