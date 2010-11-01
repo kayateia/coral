@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContextWithBaggage.cs" />
     <Compile Include="DynamicMemberBinding.cs" />
     <Compile Include="DynamicMethodBinding.cs" />
     <Compile Include="IDynamicObject.cs" />

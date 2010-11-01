@@ -12,7 +12,7 @@ using ScriptNET.Runtime;
 /// </summary>
 public class Scope {
 	public Scope() {
-		_context = new ScriptContext();
+		_context = new ContextWithBaggage();
 		RuntimeHost.InitializeScript(_context);
 	}
 
@@ -31,6 +31,18 @@ public class Scope {
 
 	public object get(string name) {
 		return _context.GetItem(name, false);
+	}
+
+	public void baggageSet(string name, object value) {
+		((ContextWithBaggage)_context).baggageSet(name, value);
+	}
+
+	public object baggageGet(string name) {
+		return ((ContextWithBaggage)_context).baggageGet(name);
+	}
+
+	public void baggageDel(string name) {
+		((ContextWithBaggage)_context).baggageDel(name);
 	}
 
 	internal IScriptContext context {
