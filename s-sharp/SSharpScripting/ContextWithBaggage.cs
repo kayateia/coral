@@ -24,6 +24,18 @@ public class ContextWithBaggage : ScriptContext {
 		_baggage.Remove(item);
 	}
 
+	// Give a chance to our own code to make algorithmically named scope items.
+	public override object GetItem(string id, bool throwException) {
+		if (this.queryForItem != null) {
+			var rv = this.queryForItem(id);
+			if (rv != null)
+				return rv;
+		}
+		return base.GetItem(id, throwException);
+	}
+
+	public Scope.GetItemDelegate queryForItem = null;
+
 	Dictionary<string, object> _baggage = new Dictionary<string,object>();
 }
 

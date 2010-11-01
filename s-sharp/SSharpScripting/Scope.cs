@@ -17,7 +17,9 @@ public class Scope {
 	}
 
 	internal Scope(IScriptContext context) {
-		_context = context;
+		if (!(context is ContextWithBaggage))
+			throw new ArgumentException("Context is not one of ours");
+		_context = (ContextWithBaggage)context;
 	}
 
 	public void set(string name, object value) {
@@ -34,22 +36,37 @@ public class Scope {
 	}
 
 	public void baggageSet(string name, object value) {
-		((ContextWithBaggage)_context).baggageSet(name, value);
+		_context.baggageSet(name, value);
 	}
 
 	public object baggageGet(string name) {
-		return ((ContextWithBaggage)_context).baggageGet(name);
+		return _context.baggageGet(name);
 	}
 
 	public void baggageDel(string name) {
-		((ContextWithBaggage)_context).baggageDel(name);
+		_context.baggageDel(name);
 	}
 
-	internal IScriptContext context {
+	/// <summary>
+	/// Called whenever we want to query for a scoped item, to give a
+	/// callback the first right of refusal on the name lookup.
+	/// </summary>
+	public GetItemDelegate queryForItem {
+		get {
+			return _context.queryForItem;
+		}
+		set {
+			_context.queryForItem = value;
+		}
+	}
+
+	public delegate object GetItemDelegate(string id);
+
+	internal ContextWithBaggage context {
 		get { return _context; }
 	}
 
-	IScriptContext _context;
+	ContextWithBaggage _context;
 }
 
 }
