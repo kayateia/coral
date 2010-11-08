@@ -49,6 +49,7 @@
     <Compile Include="ContextWithBaggage.cs" />
     <Compile Include="DynamicMemberBinding.cs" />
     <Compile Include="DynamicMethodBinding.cs" />
+    <Compile Include="DynamicObjectBase.cs" />
     <Compile Include="IDynamicObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SandboxAssemblyManager.cs" />
