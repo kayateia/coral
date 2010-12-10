@@ -12,6 +12,9 @@ public class SSharpScripting {
 	/// </summary>
 	/// <remarks>This only needs to be done once per process.</remarks>
 	static public void Init() {
+		// Nuke out the default assembly manager that loads all of the appdomain's assemblies.
+		RuntimeHost.AssemblyManager = new BaseAssemblyManager();
+
 		// Do basic init.
 		RuntimeHost.Initialize();
 
@@ -23,9 +26,10 @@ public class SSharpScripting {
 		RuntimeHost.Binder = new SandboxBinder(RuntimeHost.Binder);
 	}
 
-	static public void AllowAssembly(System.Reflection.Assembly assembly) {
+	// We pretty much never want this.
+	/* static public void AllowAssembly(System.Reflection.Assembly assembly) {
 		RuntimeHost.AssemblyManager.AddAssembly(assembly);
-	}
+	} */
 
 	static public void AllowType(System.Type type, string alias = null) {
 		if (alias == null)

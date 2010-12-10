@@ -31,14 +31,22 @@ public class SandboxBinder : IObjectBinder {
 
 	public IObjectBind BindToMethod(object target, string methodName, Type[] genericParameters, object[] arguments) {
 		var dyn = target as IDynamicObject;
-		if (dyn != null && !dyn.isMethodPassthrough(methodName)) {
-			if (genericParameters != null && genericParameters.Length > 0)
-				return null;
-			if (!dyn.hasMethod(methodName))
-				return null;
+		if (dyn != null) {
+			if (!dyn.isMethodPassthrough(methodName)) {
+				if (genericParameters != null && genericParameters.Length > 0)
+					return null;
+				if (!dyn.hasMethod(methodName))
+					return null;
 
-			return new DynamicMethodBinding(dyn, methodName);
+				return new DynamicMethodBinding(dyn, methodName);
+			}
 		}
+
+		// Make sure it's on our whitelist before we allow access at all.
+		if (!allowedToBind(target, methodName))
+			return null;
+
+		// Pass it down to the original reflection binder.
 		return _orig.BindToMethod(target, methodName, genericParameters, arguments);
 	}
 
@@ -46,6 +54,12 @@ public class SandboxBinder : IObjectBinder {
 		var dyn = target as IDynamicObject;
 		if (dyn != null && !dyn.isMethodPassthrough(method.Name))
 			return null;
+
+		// Make sure it's on our whitelist before we allow access at all.
+		if (!allowedToBind(target, method.Name))
+			return null;
+
+		// Pass it down to the original reflection binder.
 		return _orig.BindToMethod(target, method, arguments);
 	}
 
@@ -53,22 +67,57 @@ public class SandboxBinder : IObjectBinder {
 		var dyn = target as IDynamicObject;
 		if (dyn != null && !dyn.isMemberPassthrough(memberName))
 			return new DynamicMemberBinding(dyn, memberName);
-		else
-			return _orig.BindToMember(target, memberName, throwNotFound);
+
+		// Make sure it's on our whitelist before we allow access at all.
+		if (!allowedToBind(target, memberName))
+			return null;
+
+		// Pass it down to the original reflection binder.
+		return _orig.BindToMember(target, memberName, throwNotFound);
 	}
 
 	public IObjectBind BindToIndex(object target, object[] arguments, bool setter) {
 		if (target is IDynamicObject)
 			return null;
-		else
+		else {
+			// Make sure it's on our whitelist before we allow access at all.
+			if (!allowedToBind(target, null))
+				return null;
+
 			return _orig.BindToIndex(target, arguments, setter);
+		}
 	}
 
 	public object ConvertTo(object value, Type targetType) {
 		if (value is IDynamicObject)
 			return null;
-		else
+		else {
+			// Make sure it's on our whitelist before we allow access at all.
+			if (!allowedToBind(value, null))
+				return null;
+
 			return _orig.ConvertTo(value, targetType);
+		}
+	}
+
+	bool allowedToBind(object target, string name) {
+		// System.Type is always bindable because the ScriptNET runtime
+		// default binder pulls these out as static method calls anyway.
+		if (target is System.Type)
+			return true;
+
+		// IDynamicObject always gets a pass too.
+		if (target is IDynamicObject)
+			return true;
+
+		// As do arrays -- whatever is in them, it will go through the binder itself.
+		if (target is System.Array)
+			return true;
+
+		// Find the type name.
+		string typename = target.GetType().FullName;
+
+		return RuntimeHost.AssemblyManager.HasType(typename);
 	}
 
 	public bool CanBind(MemberInfo member) {

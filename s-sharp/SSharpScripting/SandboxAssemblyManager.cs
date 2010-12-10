@@ -15,8 +15,8 @@ using ScriptNET.Runtime;
 public class SandboxAssemblyManager : IAssemblyManager {
 	public SandboxAssemblyManager(IAssemblyManager orig) {
 		_orig = orig;
-		_orig.BeforeAddAssembly += (sender, args) => this.BeforeAddAssembly(sender, args);
-		_orig.BeforeAddType += (sender, args) => this.BeforeAddType(sender, args);
+		_orig.BeforeAddAssembly += beforeAddAssembly;
+		_orig.BeforeAddType += beforeAddType;
 	}
 	IAssemblyManager _orig;
 
@@ -41,16 +41,40 @@ public class SandboxAssemblyManager : IAssemblyManager {
 	}
 
 	public bool HasNamespace(string name) {
-		return _orig.HasNamespace(name);
+		// Currently we only support System (and only some of those).
+		return name == "System";
+
+		//return _orig.HasNamespace(name);
 	}
 
 	public void AddType(string alias, Type type) {
 		_orig.AddType(alias, type);
 	}
 
+	// These are just here for show.
 	public event EventHandler<AssemblyHandlerEventArgs> BeforeAddAssembly;
-
 	public event EventHandler<AssemblyHandlerEventArgs> BeforeAddType;
+
+	void beforeAddAssembly(object sender, AssemblyHandlerEventArgs evt) {
+		if (this.BeforeAddAssembly != null) {
+			this.BeforeAddAssembly(sender, evt);
+			if (evt.Cancel)
+				return;
+		}
+
+		// Presently we disallow all assembly adds.
+		evt.Cancel = true;
+	}
+
+	void beforeAddType(object sender, AssemblyHandlerEventArgs evt) {
+		if (this.BeforeAddType != null) {
+			this.BeforeAddType(sender, evt);
+			if (evt.Cancel)
+				return;
+		}
+
+		System.Diagnostics.Debug.WriteLine("Added type: {0}", evt.Type.FullName);
+	}
 
 	public void Dispose() {
 		if (_orig != null)

@@ -63,6 +63,10 @@
       <Project>{F1B3ED0C-819F-4065-A45A-C30900914C8E}</Project>
       <Name>ScriptDotNet</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Base\Base.csproj">
+      <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
