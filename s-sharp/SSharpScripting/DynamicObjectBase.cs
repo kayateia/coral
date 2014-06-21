@@ -15,6 +15,7 @@ public abstract class DynamicObjectBase : IDynamicObject {
 
 	public class PassthroughAttribute : System.Attribute { }
 
+	// We allow this if the Passthrough attribute is set.
 	public virtual bool isMemberPassthrough(string name) {
 		if (_memberPassthrough == null) {
 			_memberPassthrough = new List<string>();
@@ -54,6 +55,7 @@ public abstract class DynamicObjectBase : IDynamicObject {
 		throw new DynamicObjectFailure("No matching methods are available.");
 	}
 
+	// We allow this if the Passthrough attribute is set.
 	public virtual bool isMethodPassthrough(string name) {
 		if (_methodPassthrough == null) {
 			_methodPassthrough = new List<string>();

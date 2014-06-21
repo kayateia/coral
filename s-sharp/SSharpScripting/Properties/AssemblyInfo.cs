@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SSharpScripting")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("SSharpScripting")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyCompany("Kayateia")]
+[assembly: AssemblyProduct("CliMOO")]
+[assembly: AssemblyCopyright("Copyright © 2010-2014 Kayateia")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

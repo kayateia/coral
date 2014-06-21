@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using ScriptNET.Runtime;
 
+/// <summary>
+/// Information about a member of a dynamic object.
+/// </summary>
 internal class DynamicMemberInfo : System.Reflection.MemberInfo {
 	public DynamicMemberInfo(IDynamicObject target, string name) {
 		_target = target;

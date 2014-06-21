@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using ScriptNET.Runtime;
 
+/// <summary>
+/// Represents a binding of a method on an object in script code.
+/// </summary>
 internal class DynamicMethodBinding : IObjectBind {
 	public DynamicMethodBinding(IDynamicObject target, string name) {
 		_target = target;

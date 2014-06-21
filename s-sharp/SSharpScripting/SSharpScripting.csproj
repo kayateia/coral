@@ -10,7 +10,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Kayateia.Climoo.Scripting.SSharp</RootNamespace>
     <AssemblyName>Kayateia.Climoo.Scripting.SSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -59,13 +58,13 @@
     <Compile Include="SSharpScripting.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\ScriptDotNet\ScriptDotNet.csproj">
-      <Project>{F1B3ED0C-819F-4065-A45A-C30900914C8E}</Project>
-      <Name>ScriptDotNet</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Base\Base.csproj">
       <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
       <Name>Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ScriptDotNet\ScriptDotNet.csproj">
+      <Project>{F1B3ED0C-819F-4065-A45A-C30900914C8E}</Project>
+      <Name>ScriptDotNet</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -76,4 +75,13 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <TextStylePolicy FileWidth="120" TabsToSpaces="False" EolMarker="Windows" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>
