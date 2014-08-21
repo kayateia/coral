@@ -19,6 +19,7 @@
 #endregion
 namespace Kayateia.Climoo.Scripting.Coral
 {
+using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -39,7 +40,7 @@ public class Scope
 		if( _values.TryGetValue( name, out v ) )
 			return v;
 		else
-			return null;
+			throw new ArgumentException( "Undefined variable " + name );
 	}
 
 	/// <summary>
@@ -48,6 +49,14 @@ public class Scope
 	public void set( string name, object value )
 	{
 		_values[name] = value;
+	}
+
+	/// <summary>
+	/// Deletes a variable from the scope by name.
+	/// </summary>
+	public void delete( string name )
+	{
+		_values.Remove( name );
 	}
 
 	Dictionary<string, object> _values = new Dictionary<string,object>();

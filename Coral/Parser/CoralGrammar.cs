@@ -90,7 +90,7 @@ class CoralGrammar : Grammar
 		var DictExpr = new NonTerminal( "DictExpr", typeof( AstDictionary ) );
 		var DictElement = new NonTerminal( "DictElement" );
 		var DictElements = new NonTerminal( "DictElements" );
-		var ForStmt = new NonTerminal( "ForStmt");
+		var ForStmt = new NonTerminal( "ForStmt", typeof( AstFor ) );
 
 		var ParamList = new NonTerminal( "ParamList" );
 		var ArgList = new NonTerminal( "ArgList" );
