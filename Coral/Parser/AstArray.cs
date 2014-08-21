@@ -19,22 +19,33 @@
 #endregion
 namespace Kayateia.Climoo.Scripting.Coral
 {
+using System.Collections.Generic;
+using System;
+using System.Linq;
 
 /// <summary>
-/// An identifier represents a variable in the scope.
+/// Represents a code-constructed array.
 /// </summary>
-class AstIdentifier : AstNode
+class AstArray : AstNode
 {
-	/// <summary>
-	/// The identifier's name.
-	/// </summary>
-	public string name { get; private set; }
+	public List<AstNode> values { get; private set; }
+
+	public AstArray()
+	{
+		this.values = new List<AstNode>();
+	}
 
 	public override bool convert( Irony.Parsing.ParseTreeNode node )
 	{
-		if( node.Term.Name == "Identifier" )
+		if( node.Term.Name == "ArrayExpr" )
 		{
-			this.name = node.Token.Text;
+			var elems = node.ChildNodes[1];
+			if( elems.Term.Name != "ArrayElements" )
+				throw new ArgumentException( "Expected ArrayElements" );
+
+			foreach( var child in elems.ChildNodes )
+				this.values.Add( Compiler.ConvertNode( child ) );
+
 			return true;
 		}
 
@@ -43,21 +54,32 @@ class AstIdentifier : AstNode
 
 	public override void run( State state )
 	{
-		// We execute by reading the identifier's value from the scope onto the result stack.
+		// We execute by pushing all the code for building the values onto the
+		// action stack, and finish off with one that will combine them all.
 		state.pushAction(
-			new Step( this, st => st.pushResult(
-				new LValue()
+			new Step( this, s =>
+			{
+				var arr = new List<object>();
+				for( int i=0; i<this.values.Count; ++i )
 				{
-					read = st2 => st2.pushResult( st2.scope.get( this.name ) ),
-					write = ( st2,v ) => st2.scope.set( this.name, v )
-				} )
-			)
+					object value = s.popResult();
+					arr.Add( value );
+				}
+
+				s.pushResult( arr );
+			} )
 		);
+		foreach( AstNode n in this.values )
+			n.run( state );
 	}
 
 	public override string ToString()
 	{
-		return "[{0}]".FormatI( this.name );
+		return "[{0}]".FormatI(
+			String.Join( ",",
+				this.values.Select( i => i.ToString() ).ToArray()
+			)
+		);
 	}
 }
 

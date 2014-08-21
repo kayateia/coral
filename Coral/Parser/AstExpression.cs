@@ -109,14 +109,29 @@ class AstExpression : AstNode
 	public override void run( State state )
 	{
 		// We execute by running the "lhs" and "rhs", and then applying the operator to them,
-		// producing another value.
+		// producing another value. If the result of either is an LValue, we have to dereference it.
 
 		state.pushAction(
 			new Step( this, st =>
 			{
+				st.pushAction( new Step( this, st2 =>
+				{
+					object right2 = st.popResult();
+					object left2 = st.popResult();
+					st.pushResult( s_operations[this.op]( left2, right2 ) );
+				} ) );
+
 				object right = st.popResult();
 				object left = st.popResult();
-				st.pushResult( s_operations[this.op]( left, right ) );
+
+				if( left is LValue )
+					((LValue)left).read( st );
+				else
+					st.pushResult( left );
+				if( right is LValue )
+					((LValue)right).read( st );
+				else
+					st.pushResult( right );
 			} )
 		);
 		this.right.run( state );

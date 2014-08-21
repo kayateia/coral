@@ -27,12 +27,12 @@ using Irony.Parsing;
 class AstAssignment : AstNode
 {
 	/// <summary>
-	/// The "left hand side", or LVALUE.
+	/// The "left hand side", or LValue.
 	/// </summary>
 	public AstNode lhs { get; private set; }
 
 	/// <summary>
-	/// The "right hand side", or RVALUE.
+	/// The "right hand side", or RValue.
 	/// </summary>
 	public AstNode rhs { get; private set; }
 
@@ -50,15 +50,17 @@ class AstAssignment : AstNode
 
 	public override void run( State state )
 	{
-		// We execute by executing the "rhs" code, then assigning the resulting
-		// value to a variable in the scope.
+		// We execute by executing the "lhs" and "rhs" code, then using the lhs's
+		// LValue callbacks to set the value.
 		state.pushAction(
 			new Step( this, s =>
 			{
-				AstIdentifier id = (AstIdentifier)this.lhs;
-				state.scope.set( id.name, s.popResult() );
+				LValue lv = (LValue)s.popResult();
+				object rv = s.popResult();
+				lv.write( s, rv );
 			} )
 		);
+		this.lhs.run( state );
 		this.rhs.run( state );
 	}
 

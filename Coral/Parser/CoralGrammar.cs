@@ -84,10 +84,10 @@ class CoralGrammar : Grammar
 		var FinallyClause = new NonTerminal( "FinallyClause" );
 		var Block = new NonTerminal( "Block" );
 		var StmtList = new NonTerminal( "StmtList", typeof( AstStatements ) );
-		var MemberAccess = new NonTerminal( "MemberAccess" );
-		var ArrayExpr = new NonTerminal( "ArrayExpr" );
+		var MemberAccess = new NonTerminal( "MemberAccess", typeof( AstMemberAccess ) );
+		var ArrayExpr = new NonTerminal( "ArrayExpr", typeof( AstArray ) );
 		var ArrayElements = new NonTerminal( "ArrayElements" );
-		var DictExpr = new NonTerminal( "DictExpr" );
+		var DictExpr = new NonTerminal( "DictExpr", typeof( AstDictionary ) );
 		var DictElement = new NonTerminal( "DictElement" );
 		var DictElements = new NonTerminal( "DictElements" );
 		var ForStmt = new NonTerminal( "ForStmt");
