@@ -29,46 +29,6 @@ using Irony.Parsing;
 /// </summary>
 class AstExpression : AstNode
 {
-	public enum Op
-	{
-		Minus,
-		Plus,
-		Not,
-		Times,
-		Div,
-		Exp,
-		Less,
-		Greater,
-		LessEqual,
-		GreaterEqual,
-		Equal,
-		NotEqual,
-		Decrement,
-		Increment,
-		Or,
-		And
-	}
-
-	Dictionary<string, Op> s_operators = new Dictionary<string,Op>()
-	{
-		{ "-", Op.Minus },
-		{ "+", Op.Plus },
-		{ "!", Op.Not },
-		{ "*", Op.Times },
-		{ "/", Op.Div },
-		{ "**", Op.Exp },
-		{ "<", Op.Less },
-		{ ">", Op.Greater },
-		{ "<=", Op.LessEqual },
-		{ ">=", Op.GreaterEqual },
-		{ "==", Op.Equal },
-		{ "!=", Op.NotEqual },
-		{ "--", Op.Decrement },
-		{ "++", Op.Increment },
-		{ "||", Op.Or },
-		{ "&&", Op.And }
-	};
-
 	static public bool CoerceBool( object o )
 	{
 		if( o is int )
@@ -80,27 +40,44 @@ class AstExpression : AstNode
 		return o != null;
 	}
 
-	// Not all operations are represented here yet.
-	Dictionary<Op, Func<object,object,object>> s_operations = new Dictionary<Op,Func<object,object,object>>()
+	static public int CoerceNumber( object o )
 	{
-		{ Op.Minus, (a,b) => (int)a - (int)b },
-		{ Op.Plus, (a,b) => (int)a + (int)b },
-		{ Op.Times, (a,b) => (int)a * (int)b },
-		{ Op.Div, (a,b) => (int)a / (int)b },
-		{ Op.Less, (a,b) => (int)a < (int)b },
-		{ Op.LessEqual, (a,b) => (int)a <= (int)b },
-		{ Op.Greater, (a,b) => (int)a > (int)b },
-		{ Op.GreaterEqual, (a,b) => (int)a >= (int)b },
-		{ Op.Equal, (a,b) => (int)a == (int)b },
-		{ Op.NotEqual, (a,b) => (int)a != (int)b },
-		{ Op.Or, (a,b) => CoerceBool( a ) || CoerceBool( b ) },
-		{ Op.And, (a,b) => CoerceBool( a ) && CoerceBool( b ) }
+		if( o is int )
+			return (int)o;
+		if( o is bool )
+			return ((bool)o) ? 1 : 0;
+		if( o is string )
+			return int.Parse( (string)o, CultureFree.Culture );
+
+		throw new ArgumentException( "Can't coerce value into a number" );
+	}
+
+	static public string CoerceString( object o )
+	{
+		return o.ToStringI();
+	}
+
+	// Not all operations are represented here yet.
+	Dictionary<string, Func<object,object,object>> s_operations = new Dictionary<string, Func<object,object,object>>()
+	{
+		{ "-", (a,b) => CoerceNumber( a ) - CoerceNumber( b ) },
+		{ "+", (a,b) => plus( a, b ) },
+		{ "*", (a,b) => CoerceNumber( a ) * CoerceNumber( b ) },
+		{ "/", (a,b) => CoerceNumber( a ) / CoerceNumber( b ) },
+		{ "<", (a,b) => CoerceNumber( a ) < CoerceNumber( b ) },
+		{ ">", (a,b) => CoerceNumber( a ) > CoerceNumber( b ) },
+		{ "<=", (a,b) => CoerceNumber( a ) <= CoerceNumber( b ) },
+		{ ">=", (a,b) => CoerceNumber( a ) >= CoerceNumber( b ) },
+		{ "==", (a,b) => CoerceNumber( a ) == CoerceNumber( b ) },
+		{ "!=", (a,b) => CoerceNumber( a ) != CoerceNumber( b ) },
+		{ "||", (a,b) => CoerceBool( a ) || CoerceBool( b ) },
+		{ "&&", (a,b) => CoerceBool( a ) && CoerceBool( b ) }
 	};
 
 	/// <summary>
 	/// The operator we represent.
 	/// </summary>
-	public Op op { get; private set; }
+	public string op { get; private set; }
 
 	/// <summary>
 	/// The left argument, or null if this is a unary operation.
@@ -119,8 +96,26 @@ class AstExpression : AstNode
 
 		this.left = Compiler.ConvertNode( node.ChildNodes[0] );
 		this.right = Compiler.ConvertNode( node.ChildNodes[2] );
-		this.op = s_operators[node.ChildNodes[1].Term.Name];
+		this.op = node.ChildNodes[1].Term.Name;
 		return true;
+	}
+
+	static object plus( object l, object r )
+	{
+		// Either side being a string means the result is a string.
+		if( l is string || r is string )
+		{
+			l = CoerceString( l );
+			r = CoerceString( r );
+			return (string)l + (string)r;
+		}
+
+		// Can't add bools.
+		if( l is bool || r is bool )
+			throw new ArgumentException( "Can't implicitly convert bool to number" );
+
+		// The remaining option is that they're numbers.
+		return (int)l + (int)r;
 	}
 
 	public override void run( State state )
@@ -135,13 +130,33 @@ class AstExpression : AstNode
 				{
 					object right2 = st.popResult();
 					object left2 = st.popResult();
-					st.pushResult( s_operations[this.op]( left2, right2 ) );
+					if( this.op == "+=" )
+					{
+						// This one is a bit trickier since we do different things based on different
+						// types, and the left side needs to be an LValue.
+						if( !(left2 is LValue) )
+							throw new ArgumentException( "Left-hand side of += must be LValue" );
+
+						LValue lv = (LValue)left2;
+						st2.pushAction( new Step( this, st3 =>
+						{
+							// We need to write the LValue back, but keep the result value on
+							// the result stack since this can be used as a normal expression too.
+							object val = st3.popResult();
+							val = plus( val, right2 );
+							lv.write( st3, val );
+							st3.pushResult( val );
+						} ) );
+						lv.read( st2 );
+					}
+					else
+						st.pushResult( s_operations[this.op]( left2, right2 ) );
 				} ) );
 
 				object right = st.popResult();
 				object left = st.popResult();
 
-				if( left is LValue )
+				if( left is LValue && this.op != "+=" )
 					((LValue)left).read( st );
 				else
 					st.pushResult( left );
@@ -157,7 +172,7 @@ class AstExpression : AstNode
 
 	public override string ToString()
 	{
-		return "({0} {1} {2})".FormatI( this.left, s_operators.Where( kv => kv.Value == this.op ).Select( kv => kv.Key ).First(), this.right );
+		return "({0} {1} {2})".FormatI( this.left, this.op, this.right );
 	}
 }
 

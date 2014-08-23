@@ -147,7 +147,9 @@ class CoralGrammar : Grammar
 			| "!="
 			| "=="
 			| "||"
-			| "&&";
+			| "&&"
+			| "+="
+			;
 
 		PrePostOp.Rule
 			= ToTerm( "--" )
@@ -241,6 +243,7 @@ class CoralGrammar : Grammar
 		NonGrammarTerminals.Add( ToTerm( @"\" ) );
 
 		// 5. Operators precedence
+		RegisterOperators( -3, "+=" );
 		RegisterOperators( 1, "||" );
 		RegisterOperators( 2, "&&" );
 		RegisterOperators( 3, "==", "!=" );
