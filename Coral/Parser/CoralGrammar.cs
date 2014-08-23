@@ -178,8 +178,8 @@ class CoralGrammar : Grammar
 		IfStmt.Rule
 			= "if" + Expr + colon + Stmt
 			| "if" + Expr + colon + Eos + Block
-			| "if" + Expr + colon + Eos + Block + PreferShiftHere() + ElifClauses
-			| "if" + Expr + colon + Eos + Block + PreferShiftHere() + ElifClauses + PreferShiftHere() + ElseClause;
+			| "if" + Expr + colon + Eos + Block + ElifClauses
+			| "if" + Expr + colon + Eos + Block + ElifClauses + ElseClause;
 		ElifClauses.Rule = MakeStarRule( ElifClauses, null, ElifClause );
 		ElifClause.Rule = "elif" + Expr + colon + Eos + Block;
 		ElseClause.Rule = "else" + colon + Eos + Block;
