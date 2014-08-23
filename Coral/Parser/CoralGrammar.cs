@@ -108,7 +108,7 @@ class CoralGrammar : Grammar
 		UnExpr.Rule = UnOp + Term;
 		UnOp.Rule = ToTerm( "+" ) | "-" | "!";
 		BinExpr.Rule = Expr + BinOp + Expr;
-		BinOp.Rule = ToTerm( "+" ) | "-" | "*" | "/" | "**" | "<" | ">" | "<=" | ">=" | "!=" | "==";
+		BinOp.Rule = ToTerm( "+" ) | "-" | "*" | "/" | "**" | "<" | ">" | "<=" | ">=" | "!=" | "==" | "||" | "&&";
 		PrePostOp.Rule = ToTerm( "--" ) | "++";
 		PreOpExpr.Rule = PrePostOp + identifier;
 		PreOpExpr.Rule |= PrePostOp + MemberAccess;
@@ -161,10 +161,13 @@ class CoralGrammar : Grammar
 		NonGrammarTerminals.Add( ToTerm( @"\" ) );
 
 		// 5. Operators precedence
-		RegisterOperators( 1, "+", "-" );
-		RegisterOperators( 2, "*", "/" );
-		RegisterOperators( 3, Associativity.Right, "**" );
-		RegisterOperators( 4, "<", ">", "<=", ">=", "!=", "==" );
+		RegisterOperators( 1, "||" );
+		RegisterOperators( 2, "&&" );
+		RegisterOperators( 3, "==", "!=" );
+		RegisterOperators( 4, "<", ">", "<=", ">=" );
+		RegisterOperators( 5, "+", "-" );
+		RegisterOperators( 6, "*", "/" );
+		RegisterOperators( 7, Associativity.Right, "**" );
 
 		// 6. Miscellaneous: punctuation, braces, transient nodes
 		MarkPunctuation( "(", ")", ":" );

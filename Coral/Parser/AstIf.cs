@@ -116,13 +116,7 @@ class AstIf : AstNode
 	void ifRunner( State st, int clauseIndex )
 	{
 		object result = st.popResult();
-		bool conv = false;
-		if( result.GetType() == typeof( int ) )
-			conv = ((int)result) != 0;
-		else if( result.GetType() == typeof( bool ) )
-			conv = (bool)result;
-		else if( result.GetType() == typeof( string ) )
-			conv = !String.IsNullOrEmpty( (string)result );
+		bool conv = AstExpression.CoerceBool( result );
 
 		if( conv )
 			this.clauses[clauseIndex].block.run( st );

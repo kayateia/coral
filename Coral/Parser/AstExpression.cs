@@ -44,7 +44,9 @@ class AstExpression : AstNode
 		Equal,
 		NotEqual,
 		Decrement,
-		Increment
+		Increment,
+		Or,
+		And
 	}
 
 	Dictionary<string, Op> s_operators = new Dictionary<string,Op>()
@@ -63,7 +65,20 @@ class AstExpression : AstNode
 		{ "!=", Op.NotEqual },
 		{ "--", Op.Decrement },
 		{ "++", Op.Increment },
+		{ "||", Op.Or },
+		{ "&&", Op.And }
 	};
+
+	static public bool CoerceBool( object o )
+	{
+		if( o is int )
+			return ((int)o) != 0;
+		if( o is bool )
+			return (bool)o;
+		if( o is string )
+			return ((string)o).IsNullOrEmpty();
+		return o != null;
+	}
 
 	// Not all operations are represented here yet.
 	Dictionary<Op, Func<object,object,object>> s_operations = new Dictionary<Op,Func<object,object,object>>()
@@ -78,6 +93,8 @@ class AstExpression : AstNode
 		{ Op.GreaterEqual, (a,b) => (int)a >= (int)b },
 		{ Op.Equal, (a,b) => (int)a == (int)b },
 		{ Op.NotEqual, (a,b) => (int)a != (int)b },
+		{ Op.Or, (a,b) => CoerceBool( a ) || CoerceBool( b ) },
+		{ Op.And, (a,b) => CoerceBool( a ) && CoerceBool( b ) }
 	};
 
 	/// <summary>
