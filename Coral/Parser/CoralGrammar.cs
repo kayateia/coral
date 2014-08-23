@@ -91,6 +91,8 @@ class CoralGrammar : Grammar
 		var DictElement = new NonTerminal( "DictElement" );
 		var DictElements = new NonTerminal( "DictElements" );
 		var ForStmt = new NonTerminal( "ForStmt", typeof( AstFor ) );
+		var BreakStmt = new NonTerminal( "BreakStmt", typeof( AstBreak ) );
+		var PassStmt = new NonTerminal( "PassStmt", typeof( AstPass ) );
 		var ArrayAccess = new NonTerminal( "ArrayAccess", typeof( AstArrayAccess ) );
 
 		var ParamList = new NonTerminal( "ParamList" );
@@ -229,6 +231,9 @@ class CoralGrammar : Grammar
 		ForStmt.Rule
 			= "for" + identifier + "in" + Expr + colon + Eos + Block
 			| "for" + AssignmentStmt + comma + Expr + comma + Expr + colon + Eos + Block;
+
+		BreakStmt.Rule = "break";
+		PassStmt.Rule = "pass";
 
 		ArrayAccess.Rule
 			= Expr + "[" + Expr + "]"

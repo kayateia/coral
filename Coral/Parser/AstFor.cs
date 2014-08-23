@@ -87,11 +87,19 @@ class AstFor : AstNode
 		);
 	}
 
+	const string ScopeMarker = "for: scope";
+
+	static public bool IsScopeMarker( Step step )
+	{
+		return step.description == ScopeMarker;
+	}
+
 	public override void run( State state )
 	{
 		// We execute by first evaluating the loopOver and then pushing one iteration of
 		// the loop onto the action stack. Each iteration, if it completes successfully,
-		// will push the next on. The array and current index are curried.
+		// will push the next on. The array and current index are curried. We also push
+		// a for loop marker on so that break works.
 		state.pushAction( new Step( this, st =>
 		{
 			object over = st.popResult();
@@ -104,7 +112,7 @@ class AstFor : AstNode
 				throw new ArgumentException( "Value is not enumerable" );
 
 			IScope forScope = new ParameterScope( st.scope, new string[] { this.loopVariable } );
-			state.pushActionAndScope( new Step( this, a => {}, "for: scope" ), forScope );
+			state.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), forScope );
 			state.scope.set( this.loopVariable, null );
 
 			oneIteration( st, overTyped, 0 );
