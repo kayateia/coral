@@ -75,13 +75,6 @@ class AstFor : AstNode
 				"for: next iteration" )
 			);
 		}
-		else
-		{
-			// Don't leave the iterator laying around.
-			state.pushAction( new Step( this,
-				st => st.scope.delete( this.loopVariable )
-			) );
-		}
 
 		this.block.run( state );
 
@@ -109,6 +102,10 @@ class AstFor : AstNode
 				overTyped = ((Dictionary<object,object>)over).Keys;
 			else
 				throw new ArgumentException( "Value is not enumerable" );
+
+			state.pushActionAndScope( new Step( this, a => {}, "for: scope" ) );
+			state.scope.set( this.loopVariable, null );
+			state.scope.fixedSet = true;
 
 			oneIteration( st, overTyped, 0 );
 		} ) );

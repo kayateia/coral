@@ -83,8 +83,14 @@ public class Scope
 	/// </summary>
 	public void set( string name, object value )
 	{
-		if( ( this.fixedSet && _parent != null ) || ( _parent != null && _parent.has( name ) ) )
+		if( _values.ContainsKey( name ) )
+		{
+			_values[name] = value;
+		}
+		else if( ( this.fixedSet && _parent != null ) || ( _parent != null && _parent.has( name ) ) )
+		{
 			_parent.set( name, value );
+		}
 		else
 			_values[name] = value;
 	}
