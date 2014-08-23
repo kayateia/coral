@@ -192,9 +192,9 @@ class CoralGrammar : Grammar
 		//float type is implementation specific, thus try decimal first (higher precision)
 		//term.DefaultFloatTypes = new TypeCode[] { TypeCode.Decimal, TypeCode.Double };
 		term.AddPrefix( "0x", NumberOptions.Hex );
-		term.AddPrefix( "0", NumberOptions.Octal );
-		term.AddSuffix( "L", TypeCode.Int64, NumberLiteral.TypeCodeBigInt );
-		term.AddSuffix( "J", NumberLiteral.TypeCodeImaginary );
+		// term.AddPrefix( "0", NumberOptions.Octal );
+		// term.AddSuffix( "L", TypeCode.Int64, NumberLiteral.TypeCodeBigInt );
+		// term.AddSuffix( "J", NumberLiteral.TypeCodeImaginary );
 		return term;
 	}
 
