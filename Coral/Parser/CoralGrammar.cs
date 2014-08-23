@@ -101,63 +101,138 @@ class CoralGrammar : Grammar
 
 		// 3. BNF rules
 		//Eos is End-Of-Statement token produced by CodeOutlineFilter
-		Expr.Rule = Term | UnExpr | BinExpr | PreOpExpr | PostOpExpr | PoundRef | MemberAccess | ArrayExpr | FunctionCall | DictExpr | ArrayAccess;
-		Term.Rule = number | dollar | ParExpr | identifier | str;
+		Expr.Rule
+			= Term
+			| UnExpr
+			| BinExpr
+			| PreOpExpr
+			| PostOpExpr
+			| PoundRef
+			| MemberAccess
+			| ArrayExpr
+			| FunctionCall
+			| DictExpr
+			| ArrayAccess;
+
+		Term.Rule
+			= number
+			| dollar
+			| ParExpr
+			| identifier
+			| str;
+
 		PoundRef.Rule = "#" + number;
+
 		MemberAccess.Rule = Expr + "." + identifier;
+
 		ParExpr.Rule = "(" + Expr + ")";
+
 		UnExpr.Rule = UnOp + Term;
-		UnOp.Rule = ToTerm( "+" ) | "-" | "!";
+		UnOp.Rule
+			= ToTerm( "+" )
+			| "-"
+			| "!";
+
 		BinExpr.Rule = Expr + BinOp + Expr;
-		BinOp.Rule = ToTerm( "+" ) | "-" | "*" | "/" | "**" | "<" | ">" | "<=" | ">=" | "!=" | "==" | "||" | "&&";
-		PrePostOp.Rule = ToTerm( "--" ) | "++";
-		PreOpExpr.Rule = PrePostOp + identifier;
-		PreOpExpr.Rule |= PrePostOp + MemberAccess;
-		PostOpExpr.Rule = identifier + PrePostOp;
-		PostOpExpr.Rule |= MemberAccess + PrePostOp;
+		BinOp.Rule
+			= ToTerm( "+" )
+			| "-"
+			| "*"
+			| "/"
+			| "**"
+			| "<"
+			| ">"
+			| "<="
+			| ">="
+			| "!="
+			| "=="
+			| "||"
+			| "&&";
+
+		PrePostOp.Rule
+			= ToTerm( "--" )
+			| "++";
+		PreOpExpr.Rule
+			= PrePostOp + identifier
+			| PrePostOp + MemberAccess;
+		PostOpExpr.Rule
+			= identifier + PrePostOp
+			| MemberAccess + PrePostOp;
+
 		AssignmentStmt.Rule
 			= identifier + "=" + Expr
 			| MemberAccess + "=" + Expr
 			| ArrayAccess + "=" + Expr;
-		Stmt.Rule = AssignmentStmt | Expr | ReturnStmt | Empty;
-		ReturnStmt.Rule = "return" + Expr;
-		IfStmt.Rule = "if" + Expr + colon + Stmt;
-		IfStmt.Rule |= "if" + Expr + colon + Eos + Block;
-		IfStmt.Rule |= "if" + Expr + colon + Eos + Block + PreferShiftHere() + ElifClauses;
-		IfStmt.Rule |= "if" + Expr + colon + Eos + Block + PreferShiftHere() + ElifClauses + PreferShiftHere() + ElseClause;
+
+		Stmt.Rule
+			= AssignmentStmt
+			| Expr
+			| ReturnStmt
+			| BreakStmt
+			| Empty;
+
+		ReturnStmt.Rule
+			= "return" + Expr
+			| "return";
+
+		IfStmt.Rule
+			= "if" + Expr + colon + Stmt
+			| "if" + Expr + colon + Eos + Block
+			| "if" + Expr + colon + Eos + Block + PreferShiftHere() + ElifClauses
+			| "if" + Expr + colon + Eos + Block + PreferShiftHere() + ElifClauses + PreferShiftHere() + ElseClause;
 		ElifClauses.Rule = MakeStarRule( ElifClauses, null, ElifClause );
 		ElifClause.Rule = "elif" + Expr + colon + Eos + Block;
 		ElseClause.Rule = "else" + colon + Eos + Block;
-		TryStmt.Rule = "try" + colon + Eos + Block + ExceptClauses;
-		TryStmt.Rule |= "try" + colon + Eos + Block + ExceptClauses + FinallyClause;
-		ExceptClause.Rule = "except" + colon + Eos + Block;
-		ExceptClause.Rule |= "except" + identifier + colon + Eos + Block;
-		ExceptClause.Rule |= "except" + identifier + identifier + colon + Eos + Block;
+
+		TryStmt.Rule
+			= "try" + colon + Eos + Block + ExceptClauses
+			| "try" + colon + Eos + Block + ExceptClauses + FinallyClause;
+
+		ExceptClause.Rule
+			= "except" + colon + Eos + Block
+			| "except" + identifier + colon + Eos + Block
+			| "except" + identifier + identifier + colon + Eos + Block;
 		ExceptClauses.Rule = MakeStarRule( ExceptClauses, null, ExceptClause );
+
 		FinallyClause.Rule = "finally" + colon + Eos + Block;
-		ExtStmt.Rule = Stmt + Eos | FunctionDef | IfStmt | TryStmt | ForStmt;
-		Block.Rule = Indent + StmtList + Dedent;
+
+		ExtStmt.Rule
+			= Stmt + Eos
+			| FunctionDef
+			| IfStmt
+			| TryStmt
+			| ForStmt;
 		StmtList.Rule = MakePlusRule( StmtList, ExtStmt );
+
+		Block.Rule = Indent + StmtList + Dedent;
 
 		ParamList.Rule = MakeStarRule( ParamList, comma, identifier );
 		ArgList.Rule = MakeStarRule( ArgList, comma, Expr );
+
 		FunctionDef.Rule = "def" + identifier + "(" + ParamList + ")" + colon + Eos + Block;
 		FunctionDef.NodeCaptionTemplate = "def #{1}(...)";
-		FunctionCall.Rule = identifier + "(" + ArgList + ")";
-		FunctionCall.Rule |= Expr + "(" + ArgList + ")";
+		FunctionCall.Rule
+			= identifier + "(" + ArgList + ")"
+			| Expr + "(" + ArgList + ")";
 		FunctionCall.NodeCaptionTemplate = "call #{0}(...)";
 
 		// Implement JSON
 		ArrayExpr.Rule = "[" + ArrayElements + "]";
 		ArrayElements.Rule = MakeStarRule( ArrayElements, comma, Expr );
+
 		DictExpr.Rule = "{" + DictElements + "}";
 		DictElement.Rule = Term + ":" + Expr;
 		DictElements.Rule = MakeStarRule( DictElements, comma, DictElement );
 
-		ForStmt.Rule = "for" + identifier + "in" + Expr + colon + Eos + Block;
-		ForStmt.Rule |= "for" + AssignmentStmt + comma + Expr + comma + Expr + colon + Eos + Block;
+		ForStmt.Rule
+			= "for" + identifier + "in" + Expr + colon + Eos + Block
+			| "for" + AssignmentStmt + comma + Expr + comma + Expr + colon + Eos + Block;
 
-		ArrayAccess.Rule = Expr + "[" + Expr + "]";
+		ArrayAccess.Rule
+			= Expr + "[" + Expr + "]"
+			| Expr + "[" + Expr + colon + Expr + "]"
+			| Expr + "[:" + Expr + "]"
+			| Expr + "[" + Expr + ":]";
 
 		this.Root = StmtList;       // Set grammar root
 
