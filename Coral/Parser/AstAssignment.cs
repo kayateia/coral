@@ -60,7 +60,7 @@ class AstAssignment : AstNode
 
 				if( rv is LValue )
 				{
-					state.pushAction( new Step( this, st => lv.write( st, s.popResult() ) ) );
+					state.pushAction( new Step( this, st => lv.write( st, s.popResult() ), "{0} (lvalue unpack)".FormatI( this ) ) );
 					((LValue)rv).read( s );
 				}
 				else
