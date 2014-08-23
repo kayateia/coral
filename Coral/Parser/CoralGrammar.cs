@@ -91,6 +91,7 @@ class CoralGrammar : Grammar
 		var DictElement = new NonTerminal( "DictElement" );
 		var DictElements = new NonTerminal( "DictElements" );
 		var ForStmt = new NonTerminal( "ForStmt", typeof( AstFor ) );
+		var ArrayAccess = new NonTerminal( "ArrayAccess", typeof( AstArrayAccess ) );
 
 		var ParamList = new NonTerminal( "ParamList" );
 		var ArgList = new NonTerminal( "ArgList" );
@@ -100,7 +101,7 @@ class CoralGrammar : Grammar
 
 		// 3. BNF rules
 		//Eos is End-Of-Statement token produced by CodeOutlineFilter
-		Expr.Rule = Term | UnExpr | BinExpr | PreOpExpr | PostOpExpr | PoundRef | MemberAccess | ArrayExpr | FunctionCall | DictExpr;
+		Expr.Rule = Term | UnExpr | BinExpr | PreOpExpr | PostOpExpr | PoundRef | MemberAccess | ArrayExpr | FunctionCall | DictExpr | ArrayAccess;
 		Term.Rule = number | dollar | ParExpr | identifier | str;
 		PoundRef.Rule = "#" + number;
 		MemberAccess.Rule = Expr + "." + identifier;
@@ -114,8 +115,10 @@ class CoralGrammar : Grammar
 		PreOpExpr.Rule |= PrePostOp + MemberAccess;
 		PostOpExpr.Rule = identifier + PrePostOp;
 		PostOpExpr.Rule |= MemberAccess + PrePostOp;
-		AssignmentStmt.Rule = identifier + "=" + Expr;
-		AssignmentStmt.Rule |= MemberAccess + "=" + Expr;
+		AssignmentStmt.Rule
+			= identifier + "=" + Expr
+			| MemberAccess + "=" + Expr
+			| ArrayAccess + "=" + Expr;
 		Stmt.Rule = AssignmentStmt | Expr | ReturnStmt | Empty;
 		ReturnStmt.Rule = "return" + Expr;
 		IfStmt.Rule = "if" + Expr + colon + Stmt;
@@ -153,6 +156,8 @@ class CoralGrammar : Grammar
 
 		ForStmt.Rule = "for" + identifier + "in" + Expr + colon + Eos + Block;
 		ForStmt.Rule |= "for" + AssignmentStmt + comma + Expr + comma + Expr + colon + Eos + Block;
+
+		ArrayAccess.Rule = Expr + "[" + Expr + "]";
 
 		this.Root = StmtList;       // Set grammar root
 
