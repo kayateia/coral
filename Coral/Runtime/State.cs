@@ -78,7 +78,8 @@ public class State
 {
 	public State()
 	{
-		_rootScope = new StandardScope();
+		_constScope = new ConstScope();
+		_rootScope = new StandardScope( _constScope );
 		_stack = new Stack<Step>();
 		_resultStack = new Stack<object>();
 	}
@@ -97,6 +98,17 @@ public class State
 			}
 
 			return _rootScope;
+		}
+	}
+
+	/// <summary>
+	/// The root constant scope.
+	/// </summary>
+	public ConstScope constScope
+	{
+		get
+		{
+			return _constScope;
 		}
 	}
 
@@ -183,6 +195,7 @@ public class State
 	Stack<Step> _stack;
 	Stack<object> _resultStack;
 	IScope _rootScope;
+	ConstScope _constScope;
 }
 
 }

@@ -35,12 +35,21 @@ public class Runner
 	/// </summary>
 	public void runSync( CodeFragment code )
 	{
+		setupConstants();
+
 		code.root.run( _state );
 		while( _state.getActionCount() > 0 )
 		{
 			var act = _state.popAction();
 			act.action( _state );
 		}
+	}
+
+	public void setupConstants()
+	{
+		// Boolean values.
+		_state.constScope.setConstant( "false", false );
+		_state.constScope.setConstant( "true", true );
 	}
 
 	/// <summary>
