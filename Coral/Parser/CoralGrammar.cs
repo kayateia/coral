@@ -73,7 +73,7 @@ class CoralGrammar : Grammar
 		var AssignmentStmt = new NonTerminal( "AssignmentStmt", typeof( AstAssignment ) );
 		var Stmt = new NonTerminal( "Stmt" );
 		var ExtStmt = new NonTerminal( "ExtStmt" );
-		var ReturnStmt = new NonTerminal( "ReturnStmt" );
+		var ReturnStmt = new NonTerminal( "ReturnStmt", typeof( AstReturn ) );
 		var IfStmt = new NonTerminal( "IfStmt", typeof( AstIf ) );
 		var ElifClause = new NonTerminal( "ElifClause" );
 		var ElifClauses = new NonTerminal( "ElifClauses" );

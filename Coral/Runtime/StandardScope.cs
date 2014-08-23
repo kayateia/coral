@@ -23,23 +23,19 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// A scope is a container for program state information like active variable values.
-/// These act hierarchically; they can be chained, and the available values are
-/// pulled from the highest up in the chain. Deletion only happens locally, however,
-/// so deleting a variable will uncover any previous value.
+/// Implementation of IScope that implements a simple nesting scope. This is
+/// suitable for the majority of needs.
 /// </summary>
-public class Scope
+public class StandardScope : IScope
 {
-	public Scope()
+	public StandardScope()
 	{
 		_parent = null;
-		this.fixedSet = false;
 	}
 
-	public Scope( Scope parent )
+	public StandardScope( IScope parent )
 	{
 		_parent = parent;
-		this.fixedSet = false;
 	}
 
 	/// <summary>
@@ -83,16 +79,10 @@ public class Scope
 	/// </summary>
 	public void set( string name, object value )
 	{
-		if( _values.ContainsKey( name ) )
-		{
+		if( _parent == null || !_parent.has( name ) )
 			_values[name] = value;
-		}
-		else if( ( this.fixedSet && _parent != null ) || ( _parent != null && _parent.has( name ) ) )
-		{
-			_parent.set( name, value );
-		}
 		else
-			_values[name] = value;
+			_parent.set( name, value );
 	}
 
 	/// <summary>
@@ -100,23 +90,16 @@ public class Scope
 	/// </summary>
 	public void delete( string name )
 	{
-		if( !_values.ContainsKey( name ) && this.fixedSet && _parent != null )
-			_parent.delete( name );
-		else
+		if( _values.ContainsKey( name ) )
 			_values.Remove( name );
+		else
+		{
+			if( _parent != null )
+				_parent.delete( name );
+		}
 	}
 
-	/// <summary>
-	/// If true, new variables set on this scope will be pushed down to any parent
-	/// scope if one is available.
-	/// </summary>
-	/// <remarks>
-	/// This use of this is in very limited-scope scopes, for things like the loop
-	/// variables in a for loop.
-	/// </remarks>
-	public bool fixedSet { get; set; }
-
-	Scope _parent;
+	IScope _parent;
 	Dictionary<string, object> _values = new Dictionary<string,object>();
 }
 

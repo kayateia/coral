@@ -19,7 +19,9 @@
 #endregion
 namespace Kayateia.Climoo.Scripting.Coral
 {
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Lambda type for a continuation that will be called when the step is reached.
@@ -61,7 +63,7 @@ public class Step
 	/// one should make use of the scope here rather than the global one. This allows
 	/// us to specify nested scopes speculatively in the same way we do steps to execute.
 	/// </summary>
-	public Scope scope { get; set; }
+	public IScope scope { get; set; }
 
 	public override string ToString()
 	{
@@ -76,15 +78,15 @@ public class State
 {
 	public State()
 	{
-		_rootScope = new Scope();
+		_rootScope = new StandardScope();
 		_stack = new Stack<Step>();
 		_resultStack = new Stack<object>();
 	}
 
 	/// <summary>
-	/// Variable scope. Eventually this will be a stack of scopes.
+	/// Variable scope.
 	/// </summary>
-	public Scope scope
+	public IScope scope
 	{
 		get
 		{
@@ -118,9 +120,9 @@ public class State
 	/// <summary>
 	/// Push a single action onto the step stack, creating a new variable scope.
 	/// </summary>
-	public void pushActionAndScope( Step action )
+	public void pushActionAndScope( Step action, IScope scope )
 	{
-		action.scope = new Scope( this.scope );
+		action.scope = scope;
 		_stack.Push( action );
 	}
 
@@ -129,7 +131,21 @@ public class State
 	/// </summary>
 	public Step popAction()
 	{
+		if( !_stack.Any() )
+			throw new InvalidOperationException( "Action stack is empty" );
 		return _stack.Pop();
+	}
+
+	/// <summary>
+	/// Unwinds the stack until the unwindChecker returns true; that remaining step will
+	/// also have been discarded. If the unwindChecker does not return true before the
+	/// stack runs out, it's an error.
+	/// </summary>
+	public void unwindActions( Func<Step, bool> unwindChecker )
+	{
+		Step s = popAction();
+		while( !unwindChecker( s ) )
+			s = popAction();
 	}
 
 	/// <summary>
@@ -166,7 +182,7 @@ public class State
 
 	Stack<Step> _stack;
 	Stack<object> _resultStack;
-	Scope _rootScope;
+	IScope _rootScope;
 }
 
 }

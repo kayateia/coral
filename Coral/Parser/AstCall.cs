@@ -61,6 +61,10 @@ class AstCall : AstNode
 		if( fv.func.parameters.Length != this.parameters.Length )
 			throw new ArgumentException( "Invalid number of arguments to function call" );
 
+		// Set a second scope with just the parameters.
+		IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
+		st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
+
 		for( int i=0; i<this.parameters.Length; ++i )
 		{
 			string name = fv.func.parameters[i];
@@ -72,6 +76,16 @@ class AstCall : AstNode
 		fv.func.block.run( st );
 	}
 
+	const string ScopeMarker = "call: scope";
+
+	/// <summary>
+	/// Returns true if the specified step is a function call scope marker.
+	/// </summary>
+	static public bool IsScopeMarker( Step s )
+	{
+		return s.description == ScopeMarker;
+	}
+
 	public override void run( State state )
 	{
 		// We execute here by evaulating each of the parameters as well as the source, and then
@@ -79,7 +93,7 @@ class AstCall : AstNode
 		state.pushAction( new Step( this, st =>
 		{
 			// Push on a scope marker so that the function will run in its own scope.
-			st.pushActionAndScope( new Step( this, a => {}, "Scope" ) );
+			st.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), new StandardScope( st.scope ) );
 
 			// The actual run action.
 			st.pushAction( new Step( this, st2 => runFunction( st2, st.popResult() ) ) );

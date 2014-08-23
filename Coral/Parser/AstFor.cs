@@ -103,9 +103,9 @@ class AstFor : AstNode
 			else
 				throw new ArgumentException( "Value is not enumerable" );
 
-			state.pushActionAndScope( new Step( this, a => {}, "for: scope" ) );
+			IScope forScope = new ParameterScope( st.scope, new string[] { this.loopVariable } );
+			state.pushActionAndScope( new Step( this, a => {}, "for: scope" ), forScope );
 			state.scope.set( this.loopVariable, null );
-			state.scope.fixedSet = true;
 
 			oneIteration( st, overTyped, 0 );
 		} ) );
