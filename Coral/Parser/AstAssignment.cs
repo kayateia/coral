@@ -57,7 +57,14 @@ class AstAssignment : AstNode
 			{
 				LValue lv = (LValue)s.popResult();
 				object rv = s.popResult();
-				lv.write( s, rv );
+
+				if( rv is LValue )
+				{
+					state.pushAction( new Step( this, st => lv.write( st, s.popResult() ) ) );
+					((LValue)rv).read( s );
+				}
+				else
+					lv.write( s, rv );
 			} )
 		);
 		this.lhs.run( state );
