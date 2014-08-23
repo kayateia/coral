@@ -56,6 +56,13 @@ public class Step
 	/// </summary>
 	public string description { get; set; }
 
+	/// <summary>
+	/// If this is non-null, then any steps pushed on the action stack below this
+	/// one should make use of the scope here rather than the global one. This allows
+	/// us to specify nested scopes speculatively in the same way we do steps to execute.
+	/// </summary>
+	public Scope scope { get; set; }
+
 	public override string ToString()
 	{
 		return this.description;
@@ -69,7 +76,7 @@ public class State
 {
 	public State()
 	{
-		this.scope = new Scope();
+		_rootScope = new Scope();
 		_stack = new Stack<Step>();
 		_resultStack = new Stack<object>();
 	}
@@ -79,8 +86,16 @@ public class State
 	/// </summary>
 	public Scope scope
 	{
-		get;
-		private set;
+		get
+		{
+			foreach( Step s in _stack )
+			{
+				if( s.scope != null )
+					return s.scope;
+			}
+
+			return _rootScope;
+		}
 	}
 
 	/// <summary>
@@ -97,6 +112,15 @@ public class State
 	/// </summary>
 	public void pushAction( Step action )
 	{
+		_stack.Push( action );
+	}
+
+	/// <summary>
+	/// Push a single action onto the step stack, creating a new variable scope.
+	/// </summary>
+	public void pushActionAndScope( Step action )
+	{
+		action.scope = new Scope( this.scope );
 		_stack.Push( action );
 	}
 
@@ -142,6 +166,7 @@ public class State
 
 	Stack<Step> _stack;
 	Stack<object> _resultStack;
+	Scope _rootScope;
 }
 
 }

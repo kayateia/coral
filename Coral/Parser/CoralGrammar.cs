@@ -94,8 +94,8 @@ class CoralGrammar : Grammar
 
 		var ParamList = new NonTerminal( "ParamList" );
 		var ArgList = new NonTerminal( "ArgList" );
-		var FunctionDef = new NonTerminal( "FunctionDef" );
-		var FunctionCall = new NonTerminal( "FunctionCall" );
+		var FunctionDef = new NonTerminal( "FunctionDef", typeof( AstFunc ) );
+		var FunctionCall = new NonTerminal( "FunctionCall", typeof( AstCall ) );
 
 
 		// 3. BNF rules
