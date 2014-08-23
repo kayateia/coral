@@ -83,13 +83,17 @@ class AstArrayAccess : AstNode
 				if( sourcerv is Dictionary<object,object> )
 				{
 					var sourcedict = (Dictionary<object,object>)sourcerv;
-					st.pushResult( indexrv );
+					st2.pushResult( indexrv );
 				}
 				else if( sourcerv is List<object> && indexrv is int )
 				{
 					var sourcelist = (List<object>)sourcerv;
 					int indexint = (int)indexrv;
-					st.pushResult( sourcelist[indexint] );
+					st2.pushResult( sourcelist[indexint] );
+				}
+				else if( sourcerv is MetalObject && ((MetalObject)sourcerv).indexLookup != null )
+				{
+					((MetalObject)sourcerv).indexLookup( st2, indexrv );
 				}
 				else
 					throw new ArgumentException( "Attempt to index non-list and non-dictionary" );

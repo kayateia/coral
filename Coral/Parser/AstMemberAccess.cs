@@ -63,36 +63,45 @@ class AstMemberAccess : AstNode
 				st.pushResult( rval );
 			st.pushAction( new Step( this, st2 =>
 			{
-				object rval2 = st.popResult();
-				st2.pushResult( new LValue()
+				object rval2 = st2.popResult();
+				if( rval2 is MetalObject )
 				{
-					read = st3 =>
+					// Metal object callbacks produce an LValue automatically.
+					((MetalObject)rval2).memberLookup( st2, this.member );
+				}
+				else
+				{
+					// We must produce an LValue ourselves, that wraps the dictionary access.
+					st2.pushResult( new LValue()
 					{
-						if( rval2 is Dictionary<object,object> )
+						read = st3 =>
 						{
-							var dict = (Dictionary<object,object>)rval2;
-							st3.pushResult( dict[this.member] );
-						}
-						else
+							if( rval2 is Dictionary<object,object> )
+							{
+								var dict = (Dictionary<object,object>)rval2;
+								st3.pushResult( dict[this.member] );
+							}
+							else
+							{
+								// TODO: Handle native object accesses.
+								throw new ArgumentException( "Can't access value as object" );
+							}
+						},
+						write = ( st3, val ) =>
 						{
-							// TODO: Handle native object accesses.
-							throw new ArgumentException( "Can't access value as object" );
+							if( rval2 is Dictionary<object,object> )
+							{
+								var dict = (Dictionary<object,object>)rval2;
+								dict[this.member] = val;
+							}
+							else
+							{
+								// TODO: Handle native object accesses.
+								throw new ArgumentException( "Can't access value as object" );
+							}
 						}
-					},
-					write = ( st3, val ) =>
-					{
-						if( rval2 is Dictionary<object,object> )
-						{
-							var dict = (Dictionary<object,object>)rval2;
-							dict[this.member] = val;
-						}
-						else
-						{
-							// TODO: Handle native object accesses.
-							throw new ArgumentException( "Can't access value as object" );
-						}
-					}
-				} );
+					} );
+				}
 			} ) );
 		} ) );
 		this.rvalue.run( state );

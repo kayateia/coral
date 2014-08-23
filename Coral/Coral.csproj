@@ -66,6 +66,7 @@
     <Compile Include="Parser\AstArrayAccess.cs" />
     <Compile Include="Parser\CoralGrammar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\MetalObject.cs" />
     <Compile Include="Runtime\ParameterScope.cs" />
     <Compile Include="Runtime\IScope.cs" />
     <Compile Include="Runtime\FValue.cs" />

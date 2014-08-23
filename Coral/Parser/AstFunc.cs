@@ -26,7 +26,7 @@ using System.Linq;
 /// <summary>
 /// Functions. This includes both 'def' style and lambda style.
 /// </summary>
-class AstFunc : AstNode
+public class AstFunc : AstNode
 {
 	/// <summary>
 	/// The function's name. This may be syntax junk (related to line numbers) for lambdas.

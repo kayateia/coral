@@ -58,22 +58,32 @@ class AstCall : AstNode
 			throw new ArgumentException( "Attempted call to non-function" );
 		FValue fv = (FValue)fvo;
 
-		if( fv.func.parameters.Length != this.parameters.Length )
-			throw new ArgumentException( "Invalid number of arguments to function call" );
-
-		// Set a second scope with just the parameters.
-		IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
-		st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
-
-		for( int i=0; i<this.parameters.Length; ++i )
+		if( fv.func != null )
 		{
-			string name = fv.func.parameters[i];
-			object value = st.popResult();
-			st.scope.set( name, value );
-		}
+			if( fv.func.parameters.Length != this.parameters.Length )
+				throw new ArgumentException( "Invalid number of arguments to function call" );
 
-		// Do the actual function call.
-		fv.func.block.run( st );
+			// Set a second scope with just the parameters.
+			IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
+			st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
+
+			for( int i=0; i<this.parameters.Length; ++i )
+			{
+				string name = fv.func.parameters[i];
+				object value = st.popResult();
+				st.scope.set( name, value );
+			}
+
+			// Do the actual function call.
+			fv.func.block.run( st );
+		}
+		else if( fv.metal != null )
+		{
+			object[] param = this.parameters.Select( n => st.popResult() ).ToArray();
+			fv.metal( st, param );
+		}
+		else
+			throw new ArgumentException( "Null function!" );
 	}
 
 	const string ScopeMarker = "call: scope";
