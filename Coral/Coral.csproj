@@ -74,6 +74,7 @@
     <Compile Include="Runtime\Runner.cs" />
     <Compile Include="Runtime\StandardScope.cs" />
     <Compile Include="Runtime\State.cs" />
+    <Compile Include="Runtime\StringObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Base\Base.csproj">

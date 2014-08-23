@@ -91,6 +91,10 @@ class AstArrayAccess : AstNode
 					int indexint = (int)indexrv;
 					st2.pushResult( sourcelist[indexint] );
 				}
+				else if( sourcerv is string && indexrv is int )
+				{
+					st2.pushResult( StringObject.ArrayAccess( (string)sourcerv, (int)indexrv ) );
+				}
 				else if( sourcerv is MetalObject && ((MetalObject)sourcerv).indexLookup != null )
 				{
 					((MetalObject)sourcerv).indexLookup( st2, indexrv );

@@ -81,10 +81,13 @@ class AstMemberAccess : AstNode
 								var dict = (Dictionary<object,object>)rval2;
 								st3.pushResult( dict[this.member] );
 							}
+							else if( rval2 is string )
+							{
+								st3.pushResult( StringObject.Method( st3, (string)rval2, this.member ) );
+							}
 							else
 							{
-								// TODO: Handle native object accesses.
-								throw new ArgumentException( "Can't access value as object" );
+								throw new ArgumentException( "Can't access value as object for read" );
 							}
 						},
 						write = ( st3, val ) =>
@@ -96,8 +99,7 @@ class AstMemberAccess : AstNode
 							}
 							else
 							{
-								// TODO: Handle native object accesses.
-								throw new ArgumentException( "Can't access value as object" );
+								throw new ArgumentException( "Can't access value as object for write" );
 							}
 						}
 					} );

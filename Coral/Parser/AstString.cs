@@ -34,7 +34,9 @@ class AstString : AstNode
 	{
 		if( node.Term.Name == "string" )
 		{
+			// Note that these come with the quotes still attached.
 			this.value = node.Token.Text;
+			this.value = this.value.Substring( 1, this.value.Length - 2 );
 			return true;
 		}
 
