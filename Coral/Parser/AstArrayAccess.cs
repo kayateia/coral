@@ -67,7 +67,7 @@ class AstArrayAccess : AstNode
 			if( source is Dictionary<object,object> )
 			{
 				var sourcedict = (Dictionary<object,object>)source;
-				st.pushResult( index );
+				st.pushResult( sourcedict[index] );
 			}
 			else if( source is List<object> && index is int )
 			{
