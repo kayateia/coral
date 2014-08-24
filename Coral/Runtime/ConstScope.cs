@@ -21,6 +21,7 @@ namespace Kayateia.Climoo.Scripting.Coral
 {
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Implementation of IScope that implements a constant scope. This is for read-only
@@ -66,6 +67,11 @@ public class ConstScope : IScope
 	public void setConstant( string name, object value )
 	{
 		_values[name] = value;
+	}
+
+	public string[] getNames()
+	{
+		return _values.Keys.ToArray();
 	}
 
 	Dictionary<string, object> _values = new Dictionary<string,object>();

@@ -46,6 +46,11 @@ public interface IScope
 	/// Deletes a variable from the scope by name.
 	/// </summary>
 	void delete( string name );
+
+	/// <summary>
+	/// Returns all the names available to get().
+	/// </summary>
+	string[] getNames();
 }
 
 }

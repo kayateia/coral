@@ -21,6 +21,7 @@ namespace Kayateia.Climoo.Scripting.Coral
 {
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Implementation of IScope that implements a simple nesting scope. This is
@@ -97,6 +98,12 @@ public class StandardScope : IScope
 			if( _parent != null )
 				_parent.delete( name );
 		}
+	}
+
+	public string[] getNames()
+	{
+		string[] parentNames = _parent != null ? _parent.getNames() : new string[0];
+		return _values.Keys.Union( parentNames ).ToArray();
 	}
 
 	IScope _parent;

@@ -78,6 +78,12 @@ public class ParameterScope : IScope
 		_parent.delete( name );
 	}
 
+	public string[] getNames()
+	{
+		string[] parentNames = _parent != null ? _parent.getNames() : new string[0];
+		return _contents.getNames().Union( parentNames ).ToArray();
+	}
+
 	IScope _parent;
 	StandardScope _contents;
 }
