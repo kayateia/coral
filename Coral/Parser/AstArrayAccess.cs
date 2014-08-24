@@ -24,7 +24,7 @@ using System;
 using System.Linq;
 
 /// <summary>
-/// Represents a code-constructed array.
+/// Represents an array access.
 /// </summary>
 class AstArrayAccess : AstNode
 {

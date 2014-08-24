@@ -64,7 +64,7 @@ class CoralGrammar : Grammar
 		var PoundRef = new NonTerminal( "PoundRef" );
 		var BinExpr = new NonTerminal( "BinExpr", typeof( AstExpression ) );
 		var ParExpr = new NonTerminal( "ParExpr" );
-		var UnExpr = new NonTerminal( "UnExpr" );
+		var UnExpr = new NonTerminal( "UnExpr", typeof( AstExpression ) );
 		var UnOp = new NonTerminal( "UnOp", "operator" );
 		var BinOp = new NonTerminal( "BinOp", "operator" );
 		var PrePostOp = new NonTerminal( "PrePostOp", "operator" );
@@ -94,6 +94,9 @@ class CoralGrammar : Grammar
 		var BreakStmt = new NonTerminal( "BreakStmt", typeof( AstBreak ) );
 		var PassStmt = new NonTerminal( "PassStmt", typeof( AstPass ) );
 		var ArrayAccess = new NonTerminal( "ArrayAccess", typeof( AstArrayAccess ) );
+		var ArraySliceFull = new NonTerminal( "ArraySliceFull", typeof( AstArraySlice ) );
+		var ArraySliceFromStart = new NonTerminal( "ArraySliceFromStart", typeof( AstArraySlice ) );
+		var ArraySliceFromEnd = new NonTerminal( "ArraySliceFromEnd", typeof( AstArraySlice ) );
 
 		var ParamList = new NonTerminal( "ParamList" );
 		var ArgList = new NonTerminal( "ArgList" );
@@ -114,7 +117,10 @@ class CoralGrammar : Grammar
 			| ArrayExpr
 			| FunctionCall
 			| DictExpr
-			| ArrayAccess;
+			| ArrayAccess
+			| ArraySliceFull
+			| ArraySliceFromStart
+			| ArraySliceFromEnd;
 
 		Term.Rule
 			= number
@@ -235,11 +241,25 @@ class CoralGrammar : Grammar
 		BreakStmt.Rule = "break";
 		PassStmt.Rule = "pass";
 
+		// This weird song and dance is required because for some reason, Irony is not including
+		// colon terminals in the parse tree. (Maybe a setting having to do with a Python based
+		// grammar, who knows.) Anyway, e.g. [:5] is not distinguishable from [5:] or [5]. So
+		// I've built these separate rules to record the metadata about what it was.
 		ArrayAccess.Rule
 			= Expr + "[" + Expr + "]"
-			| Expr + "[" + Expr + colon + Expr + "]"
-			| Expr + "[:" + Expr + "]"
-			| Expr + "[" + Expr + ":]";
+			;
+
+		ArraySliceFull.Rule
+			= Expr + "[" + Expr + colon + Expr + "]"
+			;
+
+		ArraySliceFromStart.Rule
+			= Expr + "[" + colon + Expr + "]"
+			;
+
+		ArraySliceFromEnd.Rule
+			= Expr + "[" + Expr + colon + "]"
+			;
 
 		this.Root = StmtList;       // Set grammar root
 

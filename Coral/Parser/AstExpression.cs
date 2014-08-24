@@ -29,49 +29,21 @@ using Irony.Parsing;
 /// </summary>
 class AstExpression : AstNode
 {
-	static public bool CoerceBool( object o )
-	{
-		if( o is int )
-			return ((int)o) != 0;
-		if( o is bool )
-			return (bool)o;
-		if( o is string )
-			return ((string)o).IsNullOrEmpty();
-		return o != null;
-	}
-
-	static public int CoerceNumber( object o )
-	{
-		if( o is int )
-			return (int)o;
-		if( o is bool )
-			return ((bool)o) ? 1 : 0;
-		if( o is string )
-			return int.Parse( (string)o, CultureFree.Culture );
-
-		throw new ArgumentException( "Can't coerce value into a number" );
-	}
-
-	static public string CoerceString( object o )
-	{
-		return o.ToStringI();
-	}
-
 	// Not all operations are represented here yet.
 	Dictionary<string, Func<object,object,object>> s_operations = new Dictionary<string, Func<object,object,object>>()
 	{
-		{ "-", (a,b) => CoerceNumber( a ) - CoerceNumber( b ) },
+		{ "-", (a,b) => minus( a, b ) },
 		{ "+", (a,b) => plus( a, b ) },
-		{ "*", (a,b) => CoerceNumber( a ) * CoerceNumber( b ) },
-		{ "/", (a,b) => CoerceNumber( a ) / CoerceNumber( b ) },
-		{ "<", (a,b) => CoerceNumber( a ) < CoerceNumber( b ) },
-		{ ">", (a,b) => CoerceNumber( a ) > CoerceNumber( b ) },
-		{ "<=", (a,b) => CoerceNumber( a ) <= CoerceNumber( b ) },
-		{ ">=", (a,b) => CoerceNumber( a ) >= CoerceNumber( b ) },
-		{ "==", (a,b) => CoerceNumber( a ) == CoerceNumber( b ) },
-		{ "!=", (a,b) => CoerceNumber( a ) != CoerceNumber( b ) },
-		{ "||", (a,b) => CoerceBool( a ) || CoerceBool( b ) },
-		{ "&&", (a,b) => CoerceBool( a ) && CoerceBool( b ) }
+		{ "*", (a,b) => Util.CoerceNumber( a ) * Util.CoerceNumber( b ) },
+		{ "/", (a,b) => Util.CoerceNumber( a ) / Util.CoerceNumber( b ) },
+		{ "<", (a,b) => Util.CoerceNumber( a ) < Util.CoerceNumber( b ) },
+		{ ">", (a,b) => Util.CoerceNumber( a ) > Util.CoerceNumber( b ) },
+		{ "<=", (a,b) => Util.CoerceNumber( a ) <= Util.CoerceNumber( b ) },
+		{ ">=", (a,b) => Util.CoerceNumber( a ) >= Util.CoerceNumber( b ) },
+		{ "==", (a,b) => Util.CoerceNumber( a ) == Util.CoerceNumber( b ) },
+		{ "!=", (a,b) => Util.CoerceNumber( a ) != Util.CoerceNumber( b ) },
+		{ "||", (a,b) => Util.CoerceBool( a ) || Util.CoerceBool( b ) },
+		{ "&&", (a,b) => Util.CoerceBool( a ) && Util.CoerceBool( b ) }
 	};
 
 	/// <summary>
@@ -91,12 +63,20 @@ class AstExpression : AstNode
 
 	public override bool convert( ParseTreeNode node )
 	{
-		if( node.Term.Name != "BinExpr" )
-			return false;
+		if( node.Term.Name == "BinExpr" )
+		{
+			this.left = Compiler.ConvertNode( node.ChildNodes[0] );
+			this.right = Compiler.ConvertNode( node.ChildNodes[2] );
+			this.op = node.ChildNodes[1].Term.Name;
 
-		this.left = Compiler.ConvertNode( node.ChildNodes[0] );
-		this.right = Compiler.ConvertNode( node.ChildNodes[2] );
-		this.op = node.ChildNodes[1].Term.Name;
+			return true;
+		}
+		else if( node.Term.Name == "UnExpr" )
+		{
+			this.op = node.ChildNodes[0].Term.Name;
+			this.right = Compiler.ConvertNode( node.ChildNodes[1] );
+		}
+
 		return true;
 	}
 
@@ -105,8 +85,8 @@ class AstExpression : AstNode
 		// Either side being a string means the result is a string.
 		if( l is string || r is string )
 		{
-			l = CoerceString( l );
-			r = CoerceString( r );
+			l = Util.CoerceString( l );
+			r = Util.CoerceString( r );
 			return (string)l + (string)r;
 		}
 
@@ -116,6 +96,17 @@ class AstExpression : AstNode
 
 		// The remaining option is that they're numbers.
 		return (int)l + (int)r;
+	}
+
+	static object minus( object l, object r )
+	{
+		// This handles things like "-3".
+		int li = 0, ri = 0;
+		if( l != null )
+			li = Util.CoerceNumber( l );
+		if( r != null )
+			ri = Util.CoerceNumber( r );
+		return li - ri;
 	}
 
 	public override void run( State state )
@@ -167,7 +158,10 @@ class AstExpression : AstNode
 			} )
 		);
 		this.right.run( state );
-		this.left.run( state );
+		if( this.left != null )
+			this.left.run( state );
+		else
+			state.pushResult( null );
 	}
 
 	public override string ToString()

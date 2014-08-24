@@ -69,14 +69,10 @@ static public class StringObject
 	/// </summary>
 	static public string ArraySlice( string str, int? start, int? end )
 	{
-		if( !start.HasValue )
-			start = 0;
-		if( !end.HasValue )
-			end = str.Length;
-		if( end < 0 )
-			end = str.Length - end;
+		int astart, aend;
+		Util.ArraySlice( str.Length, start, end, out astart, out aend );
 
-		return str.Substring( start.Value, (end - start).Value );
+		return str.Substring( astart, aend - astart );
 	}
 }
 

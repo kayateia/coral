@@ -116,7 +116,7 @@ class AstIf : AstNode
 	void ifRunner( State st, int clauseIndex )
 	{
 		object result = st.popResult();
-		bool conv = AstExpression.CoerceBool( result );
+		bool conv = Util.CoerceBool( result );
 
 		if( conv )
 			this.clauses[clauseIndex].block.run( st );
