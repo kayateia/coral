@@ -50,6 +50,9 @@ public class Runner
 		// Boolean values.
 		_state.constScope.setConstant( "false", false );
 		_state.constScope.setConstant( "true", true );
+
+		// Built-in objects.
+		StringObject.RegisterObject( _state.constScope );
 	}
 
 	/// <summary>

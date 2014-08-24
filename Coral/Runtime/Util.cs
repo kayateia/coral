@@ -87,6 +87,26 @@ static public class Util
 		else
 			return o.ToStringI();
 	}
+
+	/// <summary>
+	/// Coerce a value into a string array.
+	/// </summary>
+	static public string[] CoerceStringArray( object o )
+	{
+		var list = o as List<object>;
+		if( list == null )
+			throw new ArgumentException( "Can't coerce value into an array" );
+
+		return list.Select( s => CoerceString( s ) ).ToArray();
+	}
+
+	/// <summary>
+	/// Coerce a string array into a Coral string array.
+	/// </summary>
+	static public object CoerceStringListObject( string[] strs )
+	{
+		return new List<object>( strs );
+	}
 }
 
 }

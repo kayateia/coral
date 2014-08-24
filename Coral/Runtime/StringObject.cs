@@ -46,10 +46,30 @@ static public class StringObject
 		{
 			return new FValue( (st2, args) =>
 				{
-					for( int i=0; i<args.Length; ++i )
-						args[i] = LValue.Deref( st2, args[i] );
 					string result = str.FormatI( args );
 					st2.pushResult( result );
+				}
+			);
+		}
+		else if( name == "split" )
+		{
+			return new FValue( (st2, args) =>
+				{
+					// We should have 1 or 2 args.
+					if( args.Length < 1 )
+						throw new ArgumentException( "Not enough args to string.split" );
+
+					// Convert the split-by array if necessary.
+					string[] splitBy;
+					if( args[0] is string )
+						splitBy = new string[] { Util.CoerceString( args[0] ) };
+					else
+						splitBy = Util.CoerceStringArray( args[0] );
+
+					if( args.Length == 1 )
+						st2.pushResult( Util.CoerceStringListObject( str.Split( splitBy, StringSplitOptions.None ) ) );
+					else
+						st2.pushResult( Util.CoerceStringListObject( str.Split( splitBy, Util.CoerceNumber( args[1] ), StringSplitOptions.None ) ) );
 				}
 			);
 		}
@@ -75,6 +95,56 @@ static public class StringObject
 		Util.ArraySlice( str.Length, start, end, out astart, out aend );
 
 		return str.Substring( astart, aend - astart );
+	}
+
+	/// <summary>
+	/// Implements the string.join method.
+	/// </summary>
+	static void MethodJoin( State state, object[] args )
+	{
+		// Args should be a separator string and an array of stuff to join.
+		if( args.Length != 2 )
+			throw new ArgumentException( "string.join must be called with a separator string and an array of strings" );
+
+		string sep = Util.CoerceString( args[0] );
+		string[] arr = Util.CoerceStringArray( args[1] );
+		state.pushResult( String.Join( sep, arr ) );
+	}
+
+	/// <summary>
+	/// Registers the string object in the const scope.
+	/// </summary>
+	/// <remarks>
+	/// This could probably be factored out into a helper class.
+	/// </remarks>
+	static public void RegisterObject( ConstScope scope )
+	{
+		scope.setConstant( "string",
+			new MetalObject()
+			{
+				indexLookup = (state, idx) =>
+				{
+					throw new InvalidOperationException( "Can't index the string object" );
+				},
+				memberLookup = (state, name) =>
+				{
+					state.pushResult( new LValue()
+					{
+						read = st => {
+							if( name == "join" )
+							{
+								return new FValue( (st2,args) => MethodJoin( st2, args ) );
+							}
+							else
+							{
+								throw new ArgumentException( "Unknown method on string object" );
+							}
+						},
+						write = (st,val) => { throw new InvalidOperationException( "Can't write to the string object" ); }
+					} );
+				}
+			}
+		);
 	}
 }
 
