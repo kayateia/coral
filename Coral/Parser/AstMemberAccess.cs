@@ -56,55 +56,47 @@ class AstMemberAccess : AstNode
 		// the RValue is itself an LValue, we need to deref that first.
 		state.pushAction( new Step( this, st =>
 		{
-			object rval = st.popResult();
-			if( rval is LValue )
-				((LValue)rval).read( st );
-			else
-				st.pushResult( rval );
-			st.pushAction( new Step( this, st2 =>
+			object rval = LValue.Deref( st );
+			if( rval is MetalObject )
 			{
-				object rval2 = st2.popResult();
-				if( rval2 is MetalObject )
+				// Metal object callbacks produce an LValue automatically.
+				((MetalObject)rval).memberLookup( st, this.member );
+			}
+			else
+			{
+				// We must produce an LValue ourselves, that wraps the dictionary access.
+				st.pushResult( new LValue()
 				{
-					// Metal object callbacks produce an LValue automatically.
-					((MetalObject)rval2).memberLookup( st2, this.member );
-				}
-				else
-				{
-					// We must produce an LValue ourselves, that wraps the dictionary access.
-					st2.pushResult( new LValue()
+					read = st3 =>
 					{
-						read = st3 =>
+						if( rval is Dictionary<object,object> )
 						{
-							if( rval2 is Dictionary<object,object> )
-							{
-								var dict = (Dictionary<object,object>)rval2;
-								st3.pushResult( dict[this.member] );
-							}
-							else if( rval2 is string )
-							{
-								st3.pushResult( StringObject.Method( st3, (string)rval2, this.member ) );
-							}
-							else
-							{
-								throw new ArgumentException( "Can't access value as object for read" );
-							}
-						},
-						write = ( st3, val ) =>
-						{
-							if( rval2 is Dictionary<object,object> )
-							{
-								var dict = (Dictionary<object,object>)rval2;
-								dict[this.member] = val;
-							}
-							else
-							{
-								throw new ArgumentException( "Can't access value as object for write" );
-							}
+							var dict = (Dictionary<object,object>)rval;
+							return dict[this.member];
 						}
-					} );
-				}
-			} ) );
+						else if( rval is string )
+						{
+							return StringObject.Method( st3, (string)rval, this.member );
+						}
+						else
+						{
+							throw new ArgumentException( "Can't access value as object for read" );
+						}
+					},
+					write = ( st3, val ) =>
+					{
+						if( rval is Dictionary<object,object> )
+						{
+							var dict = (Dictionary<object,object>)rval;
+							dict[this.member] = val;
+						}
+						else
+						{
+							throw new ArgumentException( "Can't access value as object for write" );
+						}
+					}
+				} );
+			}
 		} ) );
 		this.rvalue.run( state );
 	}

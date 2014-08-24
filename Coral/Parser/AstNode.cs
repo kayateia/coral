@@ -32,23 +32,10 @@ public abstract class AstNode
 	public AstNode()
 	{
 	}
-/*
-	/// <summary>
-	/// List of child nodes, which may be modified.
-	/// </summary>
-	public IList<AstNode> childNodes
-	{
-		get
-		{
-			return _children;
-		}
-	} */
 
 	public abstract bool convert( Irony.Parsing.ParseTreeNode node );
 
 	public virtual void run( State state ) { }
-
-	// List<AstNode> _children = new List<AstNode>();
 }
 
 }

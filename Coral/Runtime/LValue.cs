@@ -20,17 +20,38 @@ using System.Text;
 public class LValue
 {
 	/// <summary>
-	/// Read the LValue's value, as if it were an RValue. This will push what's
-	/// needed onto the continuation stack in order to result in an RValue on
-	/// the result stack.
+	/// Read the LValue's value, as if it were an RValue. This is processed immediately, not
+	/// pushed on the action stack.
 	/// </summary>
-	public Action<State> read;
+	public Func<State, object> read;
 
 	/// <summary>
-	/// Write the LValue's new value. This will push what's needed onto the
-	/// continuation and result stacks in order to result in an assignment.
+	/// Write the LValue's new value. This is processed immediately, not pushed on the action stack.
 	/// </summary>
 	public Action<State, object> write;
+
+	/// <summary>
+	/// Unpacks the specified LValue, if it's an LValue. Otherwise the value is returned again.
+	/// </summary>
+	static public object Deref( State state, object value )
+	{
+		if( value is LValue )
+			return ((LValue)value).read( state );
+		else
+			return value;
+	}
+
+	/// <summary>
+	/// Unpacks the LValue from the result stack, if it's an LValue. Otherwise the value is returned again.
+	/// </summary>
+	static public object Deref( State state )
+	{
+		object value = state.popResult();
+		if( value is LValue )
+			return ((LValue)value).read( state );
+		else
+			return value;
+	}
 }
 
 }

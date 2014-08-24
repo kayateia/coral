@@ -78,8 +78,8 @@ class AstDictionary : AstNode
 				var dict = new Dictionary<object, object>();
 				for( int i=0; i<this.pairs.Count; ++i )
 				{
-					object key = s.popResult();
-					object value = s.popResult();
+					object key = LValue.Deref( s );
+					object value = LValue.Deref( s );
 					dict[key] = value;
 				}
 

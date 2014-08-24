@@ -117,44 +117,30 @@ class AstExpression : AstNode
 		state.pushAction(
 			new Step( this, st =>
 			{
-				st.pushAction( new Step( this, st2 =>
+				object right = LValue.Deref( st );
+
+				if( this.op == "+=" )
 				{
-					object right2 = st.popResult();
-					object left2 = st.popResult();
-					if( this.op == "+=" )
-					{
-						// This one is a bit trickier since we do different things based on different
-						// types, and the left side needs to be an LValue.
-						if( !(left2 is LValue) )
-							throw new ArgumentException( "Left-hand side of += must be LValue" );
+					object left = st.popResult();
 
-						LValue lv = (LValue)left2;
-						st2.pushAction( new Step( this, st3 =>
-						{
-							// We need to write the LValue back, but keep the result value on
-							// the result stack since this can be used as a normal expression too.
-							object val = st3.popResult();
-							val = plus( val, right2 );
-							lv.write( st3, val );
-							st3.pushResult( val );
-						} ) );
-						lv.read( st2 );
-					}
-					else
-						st.pushResult( s_operations[this.op]( left2, right2 ) );
-				} ) );
+					// This one is a bit trickier since we do different things based on different
+					// types, and the left side needs to be an LValue.
+					if( !(left is LValue) )
+						throw new ArgumentException( "Left-hand side of += must be LValue" );
 
-				object right = st.popResult();
-				object left = st.popResult();
-
-				if( left is LValue && this.op != "+=" )
-					((LValue)left).read( st );
+					// We need to write the LValue back, but keep the result value on
+					// the result stack since this can be used as a normal expression too.
+					LValue lv = (LValue)left;
+					object val = lv.read( st );
+					val = plus( val, right );
+					lv.write( st, val );
+					st.pushResult( val );
+				}
 				else
-					st.pushResult( left );
-				if( right is LValue )
-					((LValue)right).read( st );
-				else
-					st.pushResult( right );
+				{
+					object left = LValue.Deref( st );
+					st.pushResult( s_operations[this.op]( left, right ) );
+				}
 			} )
 		);
 		this.right.run( state );

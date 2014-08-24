@@ -62,7 +62,7 @@ class AstArray : AstNode
 				var arr = new List<object>();
 				for( int i=0; i<this.values.Count; ++i )
 				{
-					object value = s.popResult();
+					object value = LValue.Deref( s );
 					arr.Add( value );
 				}
 

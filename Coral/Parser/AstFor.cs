@@ -102,7 +102,7 @@ class AstFor : AstNode
 		// a for loop marker on so that break works.
 		state.pushAction( new Step( this, st =>
 		{
-			object over = st.popResult();
+			object over = LValue.Deref( st );
 			IEnumerable<object> overTyped;
 			if( over is List<object> )
 				overTyped = (IEnumerable<object>)over;

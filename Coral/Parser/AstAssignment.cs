@@ -56,15 +56,8 @@ class AstAssignment : AstNode
 			new Step( this, s =>
 			{
 				LValue lv = (LValue)s.popResult();
-				object rv = s.popResult();
-
-				if( rv is LValue )
-				{
-					state.pushAction( new Step( this, st => lv.write( st, s.popResult() ), "{0} (lvalue unpack)".FormatI( this ) ) );
-					((LValue)rv).read( s );
-				}
-				else
-					lv.write( s, rv );
+				object rv = LValue.Deref( s );
+				lv.write( s, rv );
 			} )
 		);
 		this.lhs.run( state );

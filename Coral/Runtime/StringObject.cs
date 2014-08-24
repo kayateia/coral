@@ -46,6 +46,8 @@ static public class StringObject
 		{
 			return new FValue( (st2, args) =>
 				{
+					for( int i=0; i<args.Length; ++i )
+						args[i] = LValue.Deref( st2, args[i] );
 					string result = str.FormatI( args );
 					st2.pushResult( result );
 				}

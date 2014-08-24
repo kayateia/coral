@@ -61,48 +61,31 @@ class AstArrayAccess : AstNode
 		// value in question up, and then pushing the result on the result stack.
 		state.pushAction( new Step( this, st =>
 		{
-			object arraySource = st.popResult();
-			object index = st.popResult();
+			object source = LValue.Deref( st );
+			object index = LValue.Deref( st );
 
-			// Dereference LValues if needed
-			if( arraySource is LValue )
-				((LValue)arraySource).read( st );
-			else
-				st.pushResult( arraySource );
-			if( index is LValue )
-				((LValue)index).read( st );
-			else
-				st.pushResult( index );
-
-			// Queue the final step.
-			st.pushAction( new Step( this, st2 =>
+			if( source is Dictionary<object,object> )
 			{
-				object indexrv = st.popResult();
-				object sourcerv = st.popResult();
-
-				if( sourcerv is Dictionary<object,object> )
-				{
-					var sourcedict = (Dictionary<object,object>)sourcerv;
-					st2.pushResult( indexrv );
-				}
-				else if( sourcerv is List<object> && indexrv is int )
-				{
-					var sourcelist = (List<object>)sourcerv;
-					int indexint = (int)indexrv;
-					st2.pushResult( sourcelist[indexint] );
-				}
-				else if( sourcerv is string && indexrv is int )
-				{
-					st2.pushResult( StringObject.ArrayAccess( (string)sourcerv, (int)indexrv ) );
-				}
-				else if( sourcerv is MetalObject && ((MetalObject)sourcerv).indexLookup != null )
-				{
-					((MetalObject)sourcerv).indexLookup( st2, indexrv );
-				}
-				else
-					throw new ArgumentException( "Attempt to index non-list and non-dictionary" );
-			} ) );
-		}, "array access: l-value collator" ) );
+				var sourcedict = (Dictionary<object,object>)source;
+				st.pushResult( index );
+			}
+			else if( source is List<object> && index is int )
+			{
+				var sourcelist = (List<object>)source;
+				int indexint = (int)index;
+				st.pushResult( sourcelist[indexint] );
+			}
+			else if( source is string && index is int )
+			{
+				st.pushResult( StringObject.ArrayAccess( (string)source, (int)index ) );
+			}
+			else if( source is MetalObject && ((MetalObject)source).indexLookup != null )
+			{
+				((MetalObject)source).indexLookup( st, index );
+			}
+			else
+				throw new ArgumentException( "Attempt to index non-list and non-dictionary" );
+		} ) );
 		this.source.run( state );
 		this.index.run( state );
 	}

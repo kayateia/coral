@@ -70,7 +70,7 @@ class AstCall : AstNode
 			for( int i=0; i<this.parameters.Length; ++i )
 			{
 				string name = fv.func.parameters[i];
-				object value = st.popResult();
+				object value = LValue.Deref( st );
 				st.scope.set( name, value );
 			}
 
@@ -113,7 +113,7 @@ class AstCall : AstNode
 			if( fvo is FValue )
 				st.pushResult( fvo );
 			else if( fvo is LValue )
-				((LValue)fvo).read( st );
+				st.pushResult( LValue.Deref( st, fvo ) );
 			else
 				throw new ArgumentException( "Attempted call to non-function" );
 		} ) );

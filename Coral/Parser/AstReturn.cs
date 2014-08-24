@@ -52,7 +52,13 @@ class AstReturn : AstNode
 		state.pushAction( new Step( this, st => 
 		{
 			st.pushAction( new Step( this, st2 =>
-				st2.unwindActions( step => AstCall.IsScopeMarker( step ) ), "return: stack unwinder" ) );
+			{
+				// Make sure we don't leak LValues.
+				st2.pushResult( LValue.Deref( st2 ) );
+
+				// And do the stack unwind.
+				st2.unwindActions( step => AstCall.IsScopeMarker( step ) );
+			}, "return: stack unwinder" ) );
 
 			if( this.value != null )
 				this.value.run( st );

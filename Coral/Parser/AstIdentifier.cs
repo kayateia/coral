@@ -48,7 +48,7 @@ class AstIdentifier : AstNode
 			new Step( this, st => st.pushResult(
 				new LValue()
 				{
-					read = st2 => st2.pushResult( st2.scope.get( this.name ) ),
+					read = st2 => st2.scope.get( this.name ),
 					write = ( st2,v ) => st2.scope.set( this.name, v )
 				} )
 			)
