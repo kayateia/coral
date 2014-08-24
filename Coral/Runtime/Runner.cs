@@ -27,6 +27,12 @@ public class Runner
 {
 	public Runner()
 	{
+		_state = new State();
+	}
+
+	public Runner( State st )
+	{
+		_state = st;
 	}
 
 	/// <summary>
@@ -36,13 +42,43 @@ public class Runner
 	public void runSync( CodeFragment code )
 	{
 		setupConstants();
-
 		code.root.run( _state );
+		runSync();
+	}
+
+	/// <summary>
+	/// Executes what's already on the stack. Assumes an already-set-up
+	/// environment with scopes and all.
+	/// </summary>
+	void runSync()
+	{
 		while( _state.getActionCount() > 0 )
 		{
 			var act = _state.popAction();
 			act.action( _state );
 		}
+	}
+
+	/// <summary>
+	/// Calls a Coral function and returns its return value.
+	/// </summary>
+	public object callFunction( string name, object[] args, System.Type returnType )
+	{
+		// Convert the arguments.
+		AstNode[] wrapped = new AstNode[args.Length];
+		for( int i=0; i<args.Length; ++i )
+			wrapped[i] = new WrapperAstObject( Util.CoerceFromDotNet( args[i] ) );
+
+		// Construct a synthetic AstIdentifier for the name.
+		AstIdentifier id = new AstIdentifier( name );
+
+		// Construct a synthetic AstCall.
+		AstCall call = new AstCall( id, wrapped );
+
+		call.run( _state );
+		runSync();
+
+		return Util.CoerceToDotNet( returnType, _state.popResult() );
 	}
 
 	public void setupConstants()
@@ -66,7 +102,7 @@ public class Runner
 		}
 	}
 
-	State _state = new State();
+	State _state;
 }
 
 }

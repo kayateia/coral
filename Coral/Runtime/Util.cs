@@ -107,6 +107,63 @@ static public class Util
 	{
 		return new List<object>( strs );
 	}
+
+	/// <summary>
+	/// Converts a Coral type to a .NET type.
+	/// </summary>
+	/// <param name="netType">The target .NET type</param>
+	/// <param name="value">The value</param>
+	/// <returns>The coerced value</returns>
+	static public object CoerceToDotNet( Type netType, object value )
+	{
+		object rv = null;
+		if( netType == typeof( int ) )
+			rv = Util.CoerceNumber( value );
+		else if( netType == typeof( string ) )
+			rv = Util.CoerceString( value );
+		else if( netType == typeof( string[] ) )
+			rv = Util.CoerceStringArray( value );
+		else if( netType == typeof( bool ) )
+			rv = Util.CoerceBool( value );
+		else
+		{
+			// Some custom type. All we can really do here is see if the arg is another
+			// passthrough object, and pull its innards out if it's the right type.
+			var pmo = value as Passthrough.PassthroughMetalObject;
+			if( pmo != null )
+			{
+				if( pmo.innerObject.GetType() == netType )
+					rv = pmo.innerObject;
+			}
+		}
+
+		if( rv == null )
+			throw new ArgumentException( "Argument '{0}' can't be passed to this method/property".FormatI( value ) );
+		else
+			return rv;
+	}
+
+	/// <summary>
+	/// Converts a .NET type to a Coral type.
+	/// </summary>
+	static public object CoerceFromDotNet( object value )
+	{
+		if( value == null )
+			return null;
+		else
+		{
+			Type rvt = value.GetType();
+			if( rvt == typeof( int ) || rvt == typeof( string ) || rvt == typeof( bool ) )
+				return value;
+			else if( rvt == typeof( string[] ) )
+				return Util.CoerceStringListObject( (string[])value );
+			else
+			{
+				Passthrough pt = new Passthrough( value );
+				return pt.getObject( "<anon>" );
+			}
+		}
+	}
 }
 
 }

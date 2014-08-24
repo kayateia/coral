@@ -67,6 +67,7 @@
     <Compile Include="Parser\AstPass.cs" />
     <Compile Include="Parser\AstBreak.cs" />
     <Compile Include="Parser\AstArraySlice.cs" />
+    <Compile Include="Parser\WrapperAstObject.cs" />
     <Compile Include="Parser\CoralGrammar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\ConstScope.cs" />

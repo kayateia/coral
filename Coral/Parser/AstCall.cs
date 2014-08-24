@@ -28,6 +28,14 @@ using System.Linq;
 /// </summary>
 class AstCall : AstNode
 {
+	public AstCall() { }
+
+	public AstCall( AstNode source, AstNode[] parameters )
+	{
+		this.source = source;
+		this.parameters = parameters;
+	}
+
 	/// <summary>
 	/// The function's source expression. This may be an identifier or an expression, and
 	/// it must result in an FValue.

@@ -69,14 +69,16 @@ public class Passthrough
 	}
 
 	// We tag onto this to keep a reference to the type for stuff below.
-	class PassthroughMetalObject : MetalObject {
+	public class PassthroughMetalObject : MetalObject {
 		public PassthroughMetalObject() { }
 
 		public object innerObject { get; set; }
 	}
 
-	// Gets the metal object we'll put into the scope.
-	MetalObject getObject( string name )
+	/// <summary>
+	/// Gets the metal object we would put into the scope.
+	/// </summary>
+	public MetalObject getObject( string name )
 	{
 		return new PassthroughMetalObject()
 		{
@@ -163,14 +165,14 @@ public class Passthrough
 
 					object[] coerced = new object[args.Length];
 					for( int i=0; i<args.Length; ++i )
-						coerced[i] = CoerceInput( ps[i].ParameterType, args[i] );
+						coerced[i] = Util.CoerceToDotNet( ps[i].ParameterType, args[i] );
 
 					// If we're still trucking here, then we've got everything we need.
 					// TODO: We'll eventually need to do exception filtering here too.
 					object rv = m.Invoke( _obj, coerced );
 
 					// Now we have to go the other way.
-					st.pushResult( CoerceResult( rv ) );
+					st.pushResult( Util.CoerceFromDotNet( rv ) );
 				}
 			);
 		}
@@ -180,7 +182,7 @@ public class Passthrough
 		if( p != null )
 		{
 			object rv = p.GetValue( _obj, null );
-			return CoerceResult( rv );
+			return Util.CoerceFromDotNet( rv );
 		}
 
 		// This really shouldn't happen.
@@ -192,64 +194,13 @@ public class Passthrough
 		PropertyInfo p = getTaggedProperty( name );
 		if( p != null )
 		{
-			object cv = CoerceInput( p.PropertyType, val );
+			object cv = Util.CoerceToDotNet( p.PropertyType, val );
 			p.SetValue( _obj, cv, null );
 		}
 		else
 		{
 			// This really shouldn't happen.
 			throw new InvalidOperationException( "Member doesn't exist (invalid)" );
-		}
-	}
-
-	// Converts a Coral type to a .NET type.
-	static object CoerceInput( Type netType, object value )
-	{
-		object rv = null;
-		if( netType == typeof( int ) )
-			rv = Util.CoerceNumber( value );
-		else if( netType == typeof( string ) )
-			rv = Util.CoerceString( value );
-		else if( netType == typeof( string[] ) )
-			rv = Util.CoerceStringArray( value );
-		else if( netType == typeof( bool ) )
-			rv = Util.CoerceBool( value );
-		else
-		{
-			// Some custom type. All we can really do here is see if the arg is another
-			// passthrough object, and pull its innards out if it's the right type.
-			var pmo = value as PassthroughMetalObject;
-			if( pmo != null )
-			{
-				if( pmo.innerObject.GetType() == netType )
-					rv = pmo.innerObject;
-			}
-		}
-
-		if( rv == null )
-			throw new ArgumentException( "Argument '{0}' can't be passed to this method/property".FormatI( value ) );
-		else
-			return rv;
-	}
-
-	// Converts a .NET type to a Coral type.
-	static object CoerceResult( object value )
-	{
-		// Now we have to go the other way.
-		if( value == null )
-			return null;
-		else
-		{
-			Type rvt = value.GetType();
-			if( rvt == typeof( int ) || rvt == typeof( string ) || rvt == typeof( bool ) )
-				return value;
-			else if( rvt == typeof( string[] ) )
-				return Util.CoerceStringListObject( (string[])value );
-			else
-			{
-				Passthrough pt = new Passthrough( value );
-				return pt.getObject( "<anon>" );
-			}
 		}
 	}
 

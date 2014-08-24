@@ -21,50 +21,40 @@ namespace Kayateia.Climoo.Scripting.Coral
 {
 
 /// <summary>
-/// An identifier represents a variable in the scope.
+/// Represents an arbitrary object. This is basically just used when
+/// making synthetic function calls.
 /// </summary>
-class AstIdentifier : AstNode
+class WrapperAstObject : AstNode
 {
-	public AstIdentifier() { }
-
-	public AstIdentifier( string name )
+	public WrapperAstObject( object o )
 	{
-		this.name = name;
+		this.value = o;
 	}
 
 	/// <summary>
-	/// The identifier's name.
+	/// The value itself.
 	/// </summary>
-	public string name { get; private set; }
+	public object value
+	{
+		get; private set;
+	}
 
 	public override bool convert( Irony.Parsing.ParseTreeNode node )
 	{
-		if( node.Term.Name == "Identifier" )
-		{
-			this.name = node.Token.Text;
-			return true;
-		}
-
 		return false;
 	}
 
 	public override void run( State state )
 	{
-		// We execute by reading the identifier's value from the scope onto the result stack.
+		// We execute by pushing the number we represent onto the results stack.
 		state.pushAction(
-			new Step( this, st => st.pushResult(
-				new LValue()
-				{
-					read = st2 => st2.scope.get( this.name ),
-					write = ( st2,v ) => st2.scope.set( this.name, v )
-				} )
-			)
+			new Step( this, s => s.pushResult( this.value ) )
 		);
 	}
 
 	public override string ToString()
 	{
-		return "[{0}]".FormatI( this.name );
+		return "{0}".FormatI( this.value );
 	}
 }
 
