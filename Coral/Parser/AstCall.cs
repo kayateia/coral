@@ -79,7 +79,7 @@ class AstCall : AstNode
 		}
 		else if( fv.metal != null )
 		{
-			object[] param = this.parameters.Select( n => st.popResult() ).ToArray();
+			object[] param = this.parameters.Select( n => LValue.Deref( st ) ).ToArray();
 			fv.metal( st, param );
 		}
 		else
