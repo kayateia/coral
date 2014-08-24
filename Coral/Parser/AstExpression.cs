@@ -138,8 +138,17 @@ class AstExpression : AstNode
 				}
 				else
 				{
-					object left = LValue.Deref( st );
-					st.pushResult( s_operations[this.op]( left, right ) );
+					if( this.left != null )
+					{
+						object left = LValue.Deref( st );
+						st.pushResult( s_operations[this.op]( left, right ) );
+					}
+					else if( this.op == "-" )
+					{
+						st.pushResult( s_operations[this.op]( null, right ) );
+					}
+					else
+						throw new ArgumentException( "Unary operator not supported" );
 				}
 			} )
 		);

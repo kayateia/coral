@@ -25,8 +25,6 @@ using System.Linq;
 
 /// <summary>
 /// Represents a code-constructed array.
-///
-/// TODO: This is not currently working.
 /// </summary>
 class AstArraySlice : AstNode
 {
@@ -77,59 +75,32 @@ class AstArraySlice : AstNode
 		return false;
 	}
 
-	// Takes care of LValue resolution.
-/*	void readLValues( State state, ActionCallback next )
+	public override void run( State state )
 	{
 		state.pushAction( new Step( this, st =>
 		{
-			// This will process once all three are done.
-			st.pushAction( new Step( this, next ) );
+			object source = LValue.Deref( st );
+			object obegin = LValue.Deref( st );
+			object oend = LValue.Deref( st );
 
-			// Pull all three values off.
-			object[] items = new object[] {
-				st.popResult(),
-				st.popResult(),
-				st.popResult()
-			};
-
-			// Check if they're LValues and act appropriately.
-			for( int i=2; i>=0; --i )
-			{
-				if( items[i] is LValue )
-					((LValue)items[i]).read( st );
-				else
-					st.pushResultPusher( this, items[i] );
-			}
-		} ) );
-	}
-
-	void runCommon( State state )
-	{
-		readLValues( state, st2 =>
-		{
-			object source = st2.popResult();
-			int begin = Util.CoerceNumber( st2.popResult() );
-			int end = Util.CoerceNumber( st2.popResult() );
+			int? begin = obegin == null ? (int?)null : Util.CoerceNumber( obegin );
+			int? end = oend == null ? (int?)null : Util.CoerceNumber( oend );
 
 			if( source is List<object> )
 			{
 				var slist = (List<object>)source;
-				Util.ArraySlice( slist.Count, begin, end, out begin, out end );
-				var result = new List<object>( slist.Skip( begin ).Take( end - begin ) );
-				st2.pushResult( result );
+				int ibegin, iend;
+				Util.ArraySlice( slist.Count, begin, end, out ibegin, out iend );
+				var result = new List<object>( slist.Skip( ibegin ).Take( iend - ibegin ) );
+				st.pushResult( result );
 			}
 			else if( source is string )
 			{
-				st2.pushResult( StringObject.ArraySlice( (string)source, begin, end ) );
+				st.pushResult( StringObject.ArraySlice( (string)source, begin, end ) );
 			}
 			else
 				throw new ArgumentException( "Can't array slice this type" );
-		} );
-	}
-*/
-	public override void run( State state )
-	{
-/*		runCommon( state );
+		} ) );
 
 		// These are different enough that we just break them out.
 		this.source.run( state );
@@ -140,14 +111,14 @@ class AstArraySlice : AstNode
 		}
 		else if( this.begin == null )
 		{
-			state.pushResultPusher( this, null );
+			state.pushAction( new Step( this, st => st.pushResult( null ), "slice: null pusher" ) );
 			this.end.run( state );
 		}
 		else
 		{
 			this.begin.run( state );
-			state.pushResultPusher( this, null );
-		} */
+			state.pushAction( new Step( this, st => st.pushResult( null ), "slice: null pusher" ) );
+		}
 	}
 
 	public override string ToString()

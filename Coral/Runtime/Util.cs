@@ -40,7 +40,7 @@ static public class Util
 
 		int aend = end ?? length;
 		if( aend < 0 )
-			aend = length - aend;
+			aend = length + aend;
 		if( aend > length )
 			aend = length;
 
