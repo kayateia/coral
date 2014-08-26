@@ -136,6 +136,10 @@ public class Passthrough
 		if( getTaggedProperty( name ) != null )
 			return true;
 
+		var ext = _obj as IExtensible;
+		if( ext != null && ( ext.hasProperty( state, name ) || ext.hasMethod( state, name ) ) )
+			return true;
+
 		return false;
 	}
 
@@ -185,6 +189,28 @@ public class Passthrough
 			return Util.CoerceFromDotNet( rv );
 		}
 
+		// Is it an extensible object?
+		var ext = _obj as IExtensible;
+		if( ext != null && ext.hasMethod( state, name ) )
+		{
+			return new FValue( ( st, args ) =>
+				{
+					object[] coerced = new object[args.Length];
+					for( int i=0; i<args.Length; ++i )
+						coerced[i] = Util.CoerceToDotNet( typeof( object ), args[i] );
+
+					object rv = ext.callMethod( state, name, coerced );
+
+					st.pushResult( Util.CoerceFromDotNet( rv ) );
+				}
+			);
+		}
+		if( ext != null && ext.hasProperty( state, name ) )
+		{
+			object rv = ext.getProperty( state, name );
+			return Util.CoerceFromDotNet( rv );
+		}
+
 		// This really shouldn't happen.
 		throw new InvalidOperationException( "Member doesn't exist (invalid)" );
 	}
@@ -196,12 +222,19 @@ public class Passthrough
 		{
 			object cv = Util.CoerceToDotNet( p.PropertyType, val );
 			p.SetValue( _obj, cv, null );
+			return;
 		}
-		else
+
+		// Is it an extensible object?
+		var ext = _obj as IExtensible;
+		if( ext != null && ext.hasProperty( state, name ) )
 		{
-			// This really shouldn't happen.
-			throw new InvalidOperationException( "Member doesn't exist (invalid)" );
+			ext.setProperty( state, name, Util.CoerceToDotNet( typeof( object ), val ) );
+			return;
 		}
+
+		// This really shouldn't happen.
+		throw new InvalidOperationException( "Member doesn't exist (invalid)" );
 	}
 
 	object _obj;

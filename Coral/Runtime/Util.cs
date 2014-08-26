@@ -135,6 +135,8 @@ static public class Util
 				if( pmo.innerObject.GetType() == netType )
 					rv = pmo.innerObject;
 			}
+			else if( netType == typeof( object ) )
+				rv = value;
 		}
 
 		if( rv == null )
@@ -155,8 +157,13 @@ static public class Util
 			Type rvt = value.GetType();
 			if( rvt == typeof( int ) || rvt == typeof( string ) || rvt == typeof( bool ) )
 				return value;
-			else if( rvt == typeof( string[] ) )
-				return Util.CoerceStringListObject( (string[])value );
+			else if( value is Array )
+			{
+				var rv = new List<object>();
+				foreach( var v in (Array)value )
+					rv.Add( CoerceFromDotNet( v ) );
+				return rv;
+			}
 			else
 			{
 				Passthrough pt = new Passthrough( value );

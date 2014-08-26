@@ -71,6 +71,8 @@
     <Compile Include="Parser\CoralGrammar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\ConstScope.cs" />
+    <Compile Include="Runtime\IExtensible.cs" />
+    <Compile Include="Runtime\LookupScope.cs" />
     <Compile Include="Runtime\Passthrough.cs" />
     <Compile Include="Runtime\Util.cs" />
     <Compile Include="Runtime\MetalObject.cs" />

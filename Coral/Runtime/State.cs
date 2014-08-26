@@ -79,7 +79,9 @@ public class State
 	public State()
 	{
 		_constScope = new ConstScope();
-		_rootScope = new StandardScope( _constScope );
+		_lookupScope = new LookupScope( _constScope );
+		_rootScope = new StandardScope( _lookupScope );
+		_baggage = new StandardScope();
 		_stack = new Stack<Step>();
 		_resultStack = new Stack<object>();
 	}
@@ -110,6 +112,27 @@ public class State
 		{
 			return _constScope;
 		}
+	}
+
+	/// <summary>
+	/// A miscellaneous scope that you can set arbitrary values into, to keep
+	/// client app metadata along with the state.
+	/// </summary>
+	public IScope baggage
+	{
+		get
+		{
+			return _baggage;
+		}
+	}
+
+	/// <summary>
+	/// Sets a callback that will be called whenever a scope can't find an object.
+	/// </summary>
+	/// <param name="lookup"></param>
+	public void setScopeCallback( LookupScope.LookupDelegate lookup )
+	{
+		_lookupScope.lookup = lookup;
 	}
 
 	/// <summary>
@@ -195,7 +218,9 @@ public class State
 	Stack<Step> _stack;
 	Stack<object> _resultStack;
 	IScope _rootScope;
+	LookupScope _lookupScope;
 	ConstScope _constScope;
+	IScope _baggage;
 }
 
 }

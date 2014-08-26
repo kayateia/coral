@@ -19,6 +19,7 @@
 #endregion
 namespace Kayateia.Climoo.Scripting.Coral
 {
+using System;
 
 /// <summary>
 /// Handles running parsed code snippets.
@@ -57,6 +58,32 @@ public class Runner
 			var act = _state.popAction();
 			act.action( _state );
 		}
+	}
+
+	/// <summary>
+	/// Adds a value to the state's scope.
+	/// </summary>
+	/// <remarks>
+	/// Coral-native types are added as-is, while other types are Passthrough wrapped.
+	/// </remarks>
+	public void addToScope( string name, object value )
+	{
+		if( value == null || value is int || value is bool || value is string || value is string[] )
+			_state.scope.set( name, Util.CoerceFromDotNet( value ) );
+		else
+		{
+			var wrapped = new Passthrough( value );
+			wrapped.registerScope( _state.scope, name );
+		}
+	}
+
+	/// <summary>
+	/// Sets a callback that will be called whenever a scope can't find an object.
+	/// </summary>
+	/// <param name="lookup"></param>
+	public void setScopeCallback( Func<string, object> lookup )
+	{
+		_state.setScopeCallback( s => lookup( s ) );
 	}
 
 	/// <summary>
