@@ -61,7 +61,7 @@ class CoralGrammar : Grammar
 		// 2. Non-terminals
 		var Expr = new NonTerminal( "Expr" );
 		var Term = new NonTerminal( "Term" );
-		var PoundRef = new NonTerminal( "PoundRef" );
+		var PoundRef = new NonTerminal( "PoundRef", typeof( AstIdentifier ) );
 		var BinExpr = new NonTerminal( "BinExpr", typeof( AstExpression ) );
 		var ParExpr = new NonTerminal( "ParExpr" );
 		var UnExpr = new NonTerminal( "UnExpr", typeof( AstExpression ) );

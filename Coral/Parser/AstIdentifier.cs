@@ -45,6 +45,12 @@ class AstIdentifier : AstNode
 			return true;
 		}
 
+		if( node.Term.Name == "PoundRef" )
+		{
+			this.name = node.ChildNodes[0].Token.Text + node.ChildNodes[1].Token.Text;
+			return true;
+		}
+
 		return false;
 	}
 
