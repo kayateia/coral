@@ -139,7 +139,7 @@ static public class Util
 				rv = value;
 		}
 
-		if( rv == null )
+		if( rv == null && value != null )
 			throw new ArgumentException( "Argument '{0}' can't be passed to this method/property".FormatI( value ) );
 		else
 			return rv;

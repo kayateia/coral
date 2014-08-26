@@ -110,20 +110,31 @@ class AstCall : AstNode
 		// evaluating the source FValue; of course if we don't get an FValue, that's an error.
 		state.pushAction( new Step( this, st =>
 		{
-			// Push on a scope marker so that the function will run in its own scope.
-			st.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), new StandardScope( st.scope ) );
-
-			// The actual run action.
-			st.pushAction( new Step( this, st2 => runFunction( st2, st.popResult() ) ) );
-
 			// Make sure the FValue isn't an LValue.
 			object fvo = st.popResult();
 			if( fvo is FValue )
-				st.pushResult( fvo );
+			{
+				// Everything's okay
+			}
 			else if( fvo is LValue )
-				st.pushResult( LValue.Deref( st, fvo ) );
+				fvo = LValue.Deref( st, fvo );
 			else
 				throw new ArgumentException( "Attempted call to non-function" );
+			st.pushResult( fvo );
+
+			// Push on a scope marker so that the function will run in its own scope.
+			st.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), new StandardScope( st.scope ) );
+
+			if( ((FValue)fvo).func != null )
+			{
+				// Push on a pusher for a null return value. This is to ensure that calls always return
+				// something, for result stack sanity. This won't get executed if the function returns
+				// a value on its own.
+				st.pushAction( new Step( this, st2 => st2.pushResult( null ), "call: result pusher" ) );
+			}
+
+			// The actual run action.
+			st.pushAction( new Step( this, st2 => runFunction( st2, st.popResult() ) ) );
 		} ) );
 		this.source.run( state );
 		foreach( AstNode p in this.parameters )
