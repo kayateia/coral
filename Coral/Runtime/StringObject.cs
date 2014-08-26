@@ -73,6 +73,20 @@ static public class StringObject
 				}
 			);
 		}
+		else if( name == "replace" )
+		{
+			return new FValue( (st2, args) =>
+				{
+					if( args.Length != 2 )
+						throw new ArgumentException( "Must pass replace() two args" );
+
+					string from = Util.CoerceString( args[0] );
+					string to = Util.CoerceString( args[1] );
+
+					st2.pushResult( str.Replace( from, to ) );
+				}
+			);
+		}
 		else
 			throw new ArgumentException( "String object has no method '{0}'".FormatI( name ) );
 	}
