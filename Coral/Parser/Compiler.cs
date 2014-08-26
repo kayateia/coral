@@ -36,8 +36,9 @@ public class Compiler
 	/// </summary>
 	static public CodeFragment Compile( string s )
 	{
-		Parser parser = new Parser( new CoralGrammar() );
-		ParseTree tree = parser.Parse( s );
+		if( s_parser == null )
+			s_parser = new Parser( new CoralGrammar() );
+		ParseTree tree = s_parser.Parse( s );
 		AstNode node = ConvertNode( tree.Root );
 		return new CodeFragment( node );
 	}
@@ -55,6 +56,8 @@ public class Compiler
 
 		throw new ArgumentException( "Can't convert node type {0}".FormatI( t.Term.Name ) );
 	}
+
+	static Parser s_parser = null;
 }
 
 }
