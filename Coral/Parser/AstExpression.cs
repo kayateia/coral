@@ -32,15 +32,15 @@ class AstExpression : AstNode
 	// Not all operations are represented here yet.
 	Dictionary<string, Func<object,object,object>> s_operations = new Dictionary<string, Func<object,object,object>>()
 	{
-		{ "-", (a,b) => minus( a, b ) },
-		{ "+", (a,b) => plus( a, b ) },
+		{ "-", (a,b) => Minus( a, b ) },
+		{ "+", (a,b) => Plus( a, b ) },
 		{ "*", (a,b) => Util.CoerceNumber( a ) * Util.CoerceNumber( b ) },
 		{ "/", (a,b) => Util.CoerceNumber( a ) / Util.CoerceNumber( b ) },
 		{ "<", (a,b) => Util.CoerceNumber( a ) < Util.CoerceNumber( b ) },
 		{ ">", (a,b) => Util.CoerceNumber( a ) > Util.CoerceNumber( b ) },
 		{ "<=", (a,b) => Util.CoerceNumber( a ) <= Util.CoerceNumber( b ) },
 		{ ">=", (a,b) => Util.CoerceNumber( a ) >= Util.CoerceNumber( b ) },
-		{ "==", (a,b) => Util.CoerceNumber( a ) == Util.CoerceNumber( b ) },
+		{ "==", (a,b) => DoEquals( a, b ) },
 		{ "!=", (a,b) => Util.CoerceNumber( a ) != Util.CoerceNumber( b ) },
 		{ "||", (a,b) => Util.CoerceBool( a ) || Util.CoerceBool( b ) },
 		{ "&&", (a,b) => Util.CoerceBool( a ) && Util.CoerceBool( b ) }
@@ -80,7 +80,7 @@ class AstExpression : AstNode
 		return true;
 	}
 
-	static object plus( object l, object r )
+	static object Plus( object l, object r )
 	{
 		// Either side being a string means the result is a string.
 		if( l is string || r is string )
@@ -98,7 +98,7 @@ class AstExpression : AstNode
 		return (int)l + (int)r;
 	}
 
-	static object minus( object l, object r )
+	static object Minus( object l, object r )
 	{
 		// This handles things like "-3".
 		int li = 0, ri = 0;
@@ -107,6 +107,22 @@ class AstExpression : AstNode
 		if( r != null )
 			ri = Util.CoerceNumber( r );
 		return li - ri;
+	}
+
+	static object DoEquals( object l, object r )
+	{
+		// Not sure if this is really the right way or not...
+		if( l is string || r is string )
+			return Util.CoerceString( l ) == Util.CoerceString( r );
+		if( l is int || r is int )
+			return Util.CoerceNumber( l ) == Util.CoerceNumber( r );
+		if( l is bool && r is bool )
+			return (bool)l == (bool)r;
+		if( l is Passthrough.PassthroughMetalObject && r is Passthrough.PassthroughMetalObject )
+			return ((Passthrough.PassthroughMetalObject)l).innerObject == ((Passthrough.PassthroughMetalObject)r).innerObject;
+
+		// Default to coercing to bool and comparing those.
+		return Util.CoerceBool( l ) == Util.CoerceBool( r );
 	}
 
 	public override void run( State state )
@@ -132,7 +148,7 @@ class AstExpression : AstNode
 					// the result stack since this can be used as a normal expression too.
 					LValue lv = (LValue)left;
 					object val = lv.read( st );
-					val = plus( val, right );
+					val = Plus( val, right );
 					lv.write( st, val );
 					st.pushResult( val );
 				}
