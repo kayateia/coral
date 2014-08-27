@@ -68,18 +68,21 @@ class AstCall : AstNode
 
 		if( fv.func != null )
 		{
-			if( fv.func.parameters.Length != this.parameters.Length )
-				throw new ArgumentException( "Invalid number of arguments to function call" );
-
 			// Set a second scope with just the parameters.
 			IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
 			st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
 
+			var argsArray = new List<object>();
+			st.scope.set( "arguments", argsArray );
 			for( int i=0; i<this.parameters.Length; ++i )
 			{
-				string name = fv.func.parameters[i];
 				object value = LValue.Deref( st );
-				st.scope.set( name, value );
+				if( i < fv.func.parameters.Length )
+				{
+					string name = fv.func.parameters[i];
+					st.scope.set( name, value );
+				}
+				argsArray.Add( value );
 			}
 
 			// Do the actual function call.
