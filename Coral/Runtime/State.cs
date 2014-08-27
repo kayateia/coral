@@ -176,11 +176,13 @@ public class State
 	/// also have been discarded. If the unwindChecker does not return true before the
 	/// stack runs out, it's an error.
 	/// </summary>
-	public void unwindActions( Func<Step, bool> unwindChecker )
+	public void unwindActions( Func<Step, bool> unwindChecker, bool keepMarker = false )
 	{
 		Step s = popAction();
 		while( !unwindChecker( s ) )
 			s = popAction();
+		if( keepMarker )
+			pushAction( s );
 	}
 
 	/// <summary>
@@ -189,6 +191,17 @@ public class State
 	public int getActionCount()
 	{
 		return _stack.Count;
+	}
+
+	/// <summary>
+	/// Returns the first step we find that passes the checker, or null.
+	/// </summary>
+	public Step findAction( Func<Step, bool> checker )
+	{
+		foreach( Step s in _stack )
+			if( checker( s ) )
+				return s;
+		return null;
 	}
 
 	/// <summary>

@@ -79,10 +79,11 @@ class CoralGrammar : Grammar
 		var ElifClause = new NonTerminal( "ElifClause" );
 		var ElifClauses = new NonTerminal( "ElifClauses" );
 		var ElseClause = new NonTerminal( "ElseClause" );
-		var TryStmt = new NonTerminal( "TryStmt" );
+		var TryStmt = new NonTerminal( "TryStmt", typeof( AstTry ) );
 		var ExceptClause = new NonTerminal( "ExceptClause" );
-		var ExceptClauses = new NonTerminal( "ExceptClauses" );
+		//var ExceptClauses = new NonTerminal( "ExceptClauses" );
 		var FinallyClause = new NonTerminal( "FinallyClause" );
+		var ThrowStmt = new NonTerminal( "ThrowStmt", typeof( AstThrow ) );
 		var Block = new NonTerminal( "Block" );
 		var StmtList = new NonTerminal( "StmtList", typeof( AstStatements ) );
 		var MemberAccess = new NonTerminal( "MemberAccess", typeof( AstMemberAccess ) );
@@ -200,22 +201,27 @@ class CoralGrammar : Grammar
 		ElseClause.Rule = "else" + colon + Eos + Block;
 
 		TryStmt.Rule
-			= "try" + colon + Eos + Block + ExceptClauses
-			| "try" + colon + Eos + Block + ExceptClauses + FinallyClause;
+			= "try" + colon + Eos + Block + ExceptClause
+			| "try" + colon + Eos + Block + ExceptClause + FinallyClause;
 
 		ExceptClause.Rule
 			= "except" + colon + Eos + Block
 			| "except" + identifier + colon + Eos + Block
-			| "except" + identifier + identifier + colon + Eos + Block;
-		ExceptClauses.Rule = MakeStarRule( ExceptClauses, null, ExceptClause );
+			;
+		//ExceptClauses.Rule = MakeStarRule( ExceptClauses, null, ExceptClause );
 
 		FinallyClause.Rule = "finally" + colon + Eos + Block;
+
+		ThrowStmt.Rule
+			= "throw"
+			| "throw" + Expr;
 
 		ExtStmt.Rule
 			= Stmt + Eos
 			| FunctionDef
 			| IfStmt
 			| TryStmt
+			| ThrowStmt
 			| ForStmt;
 		StmtList.Rule = MakePlusRule( StmtList, ExtStmt );
 
