@@ -41,7 +41,7 @@ class AstExpression : AstNode
 		{ "<=", (a,b) => Util.CoerceNumber( a ) <= Util.CoerceNumber( b ) },
 		{ ">=", (a,b) => Util.CoerceNumber( a ) >= Util.CoerceNumber( b ) },
 		{ "==", (a,b) => DoEquals( a, b ) },
-		{ "!=", (a,b) => Util.CoerceNumber( a ) != Util.CoerceNumber( b ) },
+		{ "!=", (a,b) => !((bool)DoEquals( a, b )) },
 		{ "||", (a,b) => Util.CoerceBool( a ) || Util.CoerceBool( b ) },
 		{ "&&", (a,b) => Util.CoerceBool( a ) && Util.CoerceBool( b ) }
 	};
@@ -71,13 +71,20 @@ class AstExpression : AstNode
 
 			return true;
 		}
-		else if( node.Term.Name == "UnExpr" )
+		if( node.Term.Name == "UnExpr" )
 		{
 			this.op = node.ChildNodes[0].Term.Name;
 			this.right = Compiler.ConvertNode( node.ChildNodes[1] );
+			return true;
+		}
+		if( node.Term.Name == "NotExpr" )
+		{
+			this.op = "!";
+			this.right = Compiler.ConvertNode( node.ChildNodes[1] );
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	static object Plus( object l, object r )
@@ -162,6 +169,10 @@ class AstExpression : AstNode
 					else if( this.op == "-" )
 					{
 						st.pushResult( s_operations[this.op]( null, right ) );
+					}
+					else if( this.op == "!" )
+					{
+						st.pushResult( !((bool)Util.CoerceBool( right ) ) );
 					}
 					else
 						throw new ArgumentException( "Unary operator not supported" );

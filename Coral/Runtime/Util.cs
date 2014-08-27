@@ -58,7 +58,7 @@ static public class Util
 		if( o is bool )
 			return (bool)o;
 		if( o is string )
-			return ((string)o).IsNullOrEmpty();
+			return !((string)o).IsNullOrEmpty();
 		return o != null;
 	}
 

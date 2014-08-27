@@ -74,6 +74,19 @@ class AstMemberAccess : AstNode
 							var dict = (Dictionary<object,object>)rval;
 							return dict[this.member];
 						}
+						else if( rval is List<object> )
+						{
+							if( this.member == "length" )
+							{
+								return new FValue( (st4, args) =>
+									{
+										st4.pushResult( ((List<object>)rval).Count );
+									}
+								);
+							}
+							else
+								throw new InvalidOperationException( "List doesn't have member '{0}'".FormatI( this.member ) );
+						}
 						else if( rval is string )
 						{
 							return StringObject.Method( st3, (string)rval, this.member );

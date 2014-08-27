@@ -60,6 +60,7 @@ class CoralGrammar : Grammar
 
 		// 2. Non-terminals
 		var Expr = new NonTerminal( "Expr" );
+		var NotExpr = new NonTerminal( "NotExpr", typeof( AstExpression ) );
 		var Term = new NonTerminal( "Term" );
 		var PoundRef = new NonTerminal( "PoundRef", typeof( AstIdentifier ) );
 		var BinExpr = new NonTerminal( "BinExpr", typeof( AstExpression ) );
@@ -106,6 +107,10 @@ class CoralGrammar : Grammar
 
 		// 3. BNF rules
 		//Eos is End-Of-Statement token produced by CodeOutlineFilter
+		NotExpr.Rule
+			= "!" + Expr
+			;
+
 		Expr.Rule
 			= Term
 			| UnExpr
@@ -126,6 +131,7 @@ class CoralGrammar : Grammar
 			= number
 			| dollar
 			| ParExpr
+			| NotExpr
 			| identifier
 			| str;
 
@@ -138,8 +144,7 @@ class CoralGrammar : Grammar
 		UnExpr.Rule = UnOp + Term;
 		UnOp.Rule
 			= ToTerm( "+" )
-			| "-"
-			| "!";
+			| "-";
 
 		BinExpr.Rule = Expr + BinOp + Expr;
 		BinOp.Rule
