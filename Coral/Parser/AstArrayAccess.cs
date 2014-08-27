@@ -67,13 +67,19 @@ class AstArrayAccess : AstNode
 			if( source is Dictionary<object,object> )
 			{
 				var sourcedict = (Dictionary<object,object>)source;
-				st.pushResult( sourcedict[index] );
+				if( sourcedict.ContainsKey( index ) )
+					st.pushResult( sourcedict[index] );
+				else
+					st.pushResult( null );
 			}
 			else if( source is List<object> && index is int )
 			{
 				var sourcelist = (List<object>)source;
 				int indexint = (int)index;
-				st.pushResult( sourcelist[indexint] );
+				if( indexint < sourcelist.Count )
+					st.pushResult( sourcelist[indexint] );
+				else
+					st.pushResult( null );
 			}
 			else if( source is string && index is int )
 			{
@@ -84,7 +90,10 @@ class AstArrayAccess : AstNode
 				((MetalObject)source).indexLookup( st, index );
 			}
 			else
-				throw new ArgumentException( "Attempt to index non-list and non-dictionary" );
+			{
+				// Whatever is left never has a value.
+				st.pushResult( null );
+			}
 		} ) );
 		this.source.run( state );
 		this.index.run( state );

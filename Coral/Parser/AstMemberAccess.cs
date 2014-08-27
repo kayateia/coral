@@ -72,7 +72,10 @@ class AstMemberAccess : AstNode
 						if( rval is Dictionary<object,object> )
 						{
 							var dict = (Dictionary<object,object>)rval;
-							return dict[this.member];
+							if( dict.ContainsKey( this.member ) )
+								return dict[this.member];
+							else
+								return null;
 						}
 						else if( rval is List<object> )
 						{
@@ -85,7 +88,7 @@ class AstMemberAccess : AstNode
 								);
 							}
 							else
-								throw new InvalidOperationException( "List doesn't have member '{0}'".FormatI( this.member ) );
+								return null;
 						}
 						else if( rval is string )
 						{
@@ -93,7 +96,7 @@ class AstMemberAccess : AstNode
 						}
 						else
 						{
-							throw new ArgumentException( "Can't access value as object for read" );
+							return null;
 						}
 					},
 					write = ( st3, val ) =>

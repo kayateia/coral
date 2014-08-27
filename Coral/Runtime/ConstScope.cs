@@ -46,7 +46,7 @@ public class ConstScope : IScope
 			return v;
 
 		// Invalid variable. Since we'll be at the bottom, we need to handle this.
-		throw new ArgumentException( "Undefined variable " + name );
+		return null;
 	}
 
 	public bool has( string name )

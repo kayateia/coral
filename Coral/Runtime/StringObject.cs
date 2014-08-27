@@ -97,7 +97,10 @@ static public class StringObject
 	/// </summary>
 	static public string ArrayAccess( string str, int index )
 	{
-		return str[index] + "";
+		if( index < str.Length )
+			return str[index] + "";
+		else
+			return null;
 	}
 
 	/// <summary>

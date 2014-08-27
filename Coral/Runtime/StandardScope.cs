@@ -59,7 +59,7 @@ public class StandardScope : IScope
 		}
 
 		// Invalid variable.
-		throw new ArgumentException( "Undefined variable " + name );
+		return null;
 	}
 
 	/// <summary>
