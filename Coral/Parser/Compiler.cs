@@ -39,8 +39,18 @@ public class Compiler
 		if( s_parser == null )
 			s_parser = new Parser( new CoralGrammar() );
 		ParseTree tree = s_parser.Parse( s );
-		AstNode node = ConvertNode( tree.Root );
-		return new CodeFragment( node );
+		if( tree.HasErrors() )
+			return new CodeFragment( tree );
+
+		try
+		{
+			AstNode node = ConvertNode( tree.Root );
+			return new CodeFragment( node );
+		}
+		catch( CompilationException ex )
+		{
+			return new CodeFragment( ex );
+		}
 	}
 
 	// Converts a single ParseTreeNode into an AstNode if possible.
@@ -54,7 +64,7 @@ public class Compiler
 				return n;
 		}
 
-		throw new ArgumentException( "Can't convert node type {0}".FormatI( t.Term.Name ) );
+		throw new CompilationException( "Can't convert node type {0}".FormatI( t.Term.Name ), t );
 	}
 
 	static Parser s_parser = null;

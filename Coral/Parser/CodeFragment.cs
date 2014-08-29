@@ -25,13 +25,71 @@ using System.Linq;
 using System.Text;
 
 /// <summary>
-/// Code fragment returned from compilation.
+/// Code fragment (or errors) returned from compilation.
 /// </summary>
 public class CodeFragment
 {
 	internal CodeFragment( AstNode root )
 	{
 		this.root = root;
+		this.errors = null;
+	}
+
+	/// <summary>
+	/// True if compilation was successful.
+	/// </summary>
+	public bool success
+	{
+		get
+		{
+			return this.errors == null;
+		}
+	}
+
+	/// <summary>
+	/// Represents a single error from compilation.
+	/// </summary>
+	public class Error
+	{
+		public int line, col;
+		public string message;
+	}
+
+	/// <summary>
+	/// List of all errors, if any. If we succeeded, this will be null.
+	/// </summary>
+	public Error[] errors
+	{
+		get; private set;
+	}
+
+	internal CodeFragment( Irony.Parsing.ParseTree tree )
+	{
+		var errors = new List<Error>();
+		foreach( var msg in tree.ParserMessages )
+		{
+			errors.Add( new Error()
+				{
+					line = msg.Location.Line + 1,
+					col = msg.Location.Column + 1,
+					message = msg.Message
+				}
+			);
+		}
+		this.errors = errors.ToArray();
+	}
+
+	internal CodeFragment( CompilationException ex )
+	{
+		this.errors = new Error[]
+		{
+			new Error()
+			{
+				line = ex.line,
+				col = ex.col,
+				message = ex.Message
+			}
+		};
 	}
 
 	internal AstNode root { get; set; }

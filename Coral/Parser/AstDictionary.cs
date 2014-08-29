@@ -46,12 +46,12 @@ class AstDictionary : AstNode
 		{
 			var elems = node.ChildNodes[1];
 			if( elems.Term.Name != "DictElements" )
-				throw new ArgumentException( "Expected DictElements" );
+				throw new CompilationException( "Expected DictElements", node );
 
 			foreach( var child in elems.ChildNodes )
 			{
 				if( child.Term.Name != "DictElement" )
-					throw new ArgumentException( "Expected DictElement" );
+					throw new CompilationException( "Expected DictElement", child );
 
 				Pair p = new Pair()
 				{

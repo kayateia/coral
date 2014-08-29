@@ -57,7 +57,7 @@ static public class StringObject
 				{
 					// We should have 1 or 2 args.
 					if( args.Length < 1 )
-						throw new ArgumentException( "Not enough args to string.split" );
+						throw CoralException.GetArg( "Not enough args to string.split" );
 
 					// Convert the split-by array if necessary.
 					string[] splitBy;
@@ -78,7 +78,7 @@ static public class StringObject
 			return new FValue( (st2, args) =>
 				{
 					if( args.Length != 2 )
-						throw new ArgumentException( "Must pass replace() two args" );
+						throw CoralException.GetArg( "Must pass replace() two args" );
 
 					string from = Util.CoerceString( args[0] );
 					string to = Util.CoerceString( args[1] );
@@ -88,7 +88,7 @@ static public class StringObject
 			);
 		}
 		else
-			throw new ArgumentException( "String object has no method '{0}'".FormatI( name ) );
+			throw CoralException.GetArg( "String object has no method '{0}'".FormatI( name ) );
 	}
 
 	/// <summary>
@@ -121,7 +121,7 @@ static public class StringObject
 	{
 		// Args should be a separator string and an array of stuff to join.
 		if( args.Length != 2 )
-			throw new ArgumentException( "string.join must be called with a separator string and an array of strings" );
+			throw CoralException.GetArg( "string.join must be called with a separator string and an array of strings" );
 
 		string sep = Util.CoerceString( args[0] );
 		string[] arr = Util.CoerceStringArray( args[1] );
@@ -141,7 +141,7 @@ static public class StringObject
 			{
 				indexLookup = (state, idx) =>
 				{
-					throw new InvalidOperationException( "Can't index the string object" );
+					throw CoralException.GetArg( "Can't index the string object" );
 				},
 				memberLookup = (state, name) =>
 				{
@@ -154,10 +154,10 @@ static public class StringObject
 							}
 							else
 							{
-								throw new ArgumentException( "Unknown method on string object" );
+								throw CoralException.GetArg( "Unknown method on string object" );
 							}
 						},
-						write = (st,val) => { throw new InvalidOperationException( "Can't write to the string object" ); }
+						write = (st,val) => { throw CoralException.GetInvOp( "Can't write to the string object" ); }
 					} );
 				}
 			}

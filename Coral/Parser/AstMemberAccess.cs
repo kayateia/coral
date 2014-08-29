@@ -108,7 +108,7 @@ class AstMemberAccess : AstNode
 						}
 						else
 						{
-							throw new ArgumentException( "Can't access value as object for write" );
+							throw CoralException.GetArg( "Can't access value as object for write" );
 						}
 					}
 				} );

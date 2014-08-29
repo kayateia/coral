@@ -41,7 +41,7 @@ class AstArray : AstNode
 		{
 			var elems = node.ChildNodes[1];
 			if( elems.Term.Name != "ArrayElements" )
-				throw new ArgumentException( "Expected ArrayElements" );
+				throw new CompilationException( "Expected ArrayElements", elems );
 
 			foreach( var child in elems.ChildNodes )
 				this.values.Add( Compiler.ConvertNode( child ) );

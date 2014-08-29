@@ -85,13 +85,13 @@ public class Passthrough
 			indexLookup = (state, idx) => 
 			{
 				if( !hasIndex( state, idx ) )
-					throw new ArgumentException( "{0} has no index '{1}'".FormatI( name, idx ) );
+					throw CoralException.GetArg( "{0} has no index '{1}'".FormatI( name, idx ) );
 				doIndexLookup( state, idx );
 			},
 			memberLookup = (state, memname) =>
 			{
 				if( !hasMember( state, memname ) )
-					throw new InvalidOperationException( "{0} has no member '{1}'".FormatI( name, memname ) );
+					throw CoralException.GetArg( "{0} has no member '{1}'".FormatI( name, memname ) );
 				state.pushResult( new LValue()
 				{
 					read = st => doMemberRead( state, memname ),
@@ -165,7 +165,7 @@ public class Passthrough
 					}
 
 					if( ps.Length != args.Length )
-						throw new ArgumentException( "Wrong number of arguments to call '{0}'".FormatI( name ) );
+						throw CoralException.GetArg( "Wrong number of arguments to call '{0}'".FormatI( name ) );
 
 					object[] coerced = new object[args.Length];
 					for( int i=0; i<args.Length; ++i )
@@ -212,7 +212,7 @@ public class Passthrough
 		}
 
 		// This really shouldn't happen.
-		throw new InvalidOperationException( "Member doesn't exist (invalid)" );
+		throw CoralException.GetInvProg( "Member doesn't exist (invalid)" );
 	}
 
 	void doMemberWrite( State state, string name, object val )
@@ -234,7 +234,7 @@ public class Passthrough
 		}
 
 		// This really shouldn't happen.
-		throw new InvalidOperationException( "Member doesn't exist (invalid)" );
+		throw CoralException.GetInvOp( "Member doesn't exist (invalid)" );
 	}
 
 	object _obj;

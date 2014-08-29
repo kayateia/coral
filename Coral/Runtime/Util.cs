@@ -74,7 +74,7 @@ static public class Util
 		if( o is string )
 			return int.Parse( (string)o, CultureFree.Culture );
 
-		throw new ArgumentException( "Can't coerce value into a number" );
+		throw CoralException.GetArg( "Can't coerce value into a number" );
 	}
 
 	/// <summary>
@@ -95,7 +95,7 @@ static public class Util
 	{
 		var list = o as List<object>;
 		if( list == null )
-			throw new ArgumentException( "Can't coerce value into an array" );
+			throw CoralException.GetArg( "Can't coerce value into an array" );
 
 		return list.Select( s => CoerceString( s ) ).ToArray();
 	}
@@ -140,7 +140,7 @@ static public class Util
 		}
 
 		if( rv == null && value != null )
-			throw new ArgumentException( "Argument '{0}' can't be passed to this method/property".FormatI( value ) );
+			throw CoralException.GetArg( "Argument '{0}' can't be passed to this method/property".FormatI( value ) );
 		else
 			return rv;
 	}

@@ -109,7 +109,7 @@ class AstFor : AstNode
 			else if( over is Dictionary<object,object> )
 				overTyped = ((Dictionary<object,object>)over).Keys;
 			else
-				throw new ArgumentException( "Value is not enumerable" );
+				throw CoralException.GetArg( "Value is not enumerable" );
 
 			IScope forScope = new ParameterScope( st.scope, new string[] { this.loopVariable } );
 			state.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), forScope );

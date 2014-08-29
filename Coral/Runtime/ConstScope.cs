@@ -56,12 +56,12 @@ public class ConstScope : IScope
 
 	public void set( string name, object value )
 	{
-		throw new InvalidOperationException( "Can't set a Coral constant" );
+		throw CoralException.GetInvOp( "Can't set a Coral constant" );
 	}
 
 	public void delete( string name )
 	{
-		throw new InvalidOperationException( "Can't delete a Coral constant" );
+		throw CoralException.GetInvOp( "Can't delete a Coral constant" );
 	}
 
 	public void setConstant( string name, object value )

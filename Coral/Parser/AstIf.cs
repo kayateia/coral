@@ -82,7 +82,7 @@ class AstIf : AstNode
 					{
 						// Each of these should be an ElifClause.
 						if( n.Term.Name != "ElifClause" )
-							throw new ArgumentException( "ElifClause expected" );
+							throw new CompilationException( "ElifClause expected", n );
 
 						cl.Add( new IfClause(
 							condition: Compiler.ConvertNode( n.ChildNodes[1] ),
@@ -99,7 +99,7 @@ class AstIf : AstNode
 				}
 				else
 				{
-					throw new ArgumentException( "ElifClauses or ElseClause expected" );
+					throw new CompilationException( "ElifClauses or ElseClause expected", node.ChildNodes[i] );
 				}
 			}
 

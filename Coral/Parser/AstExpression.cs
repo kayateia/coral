@@ -99,7 +99,7 @@ class AstExpression : AstNode
 
 		// Can't add bools.
 		if( l is bool || r is bool )
-			throw new ArgumentException( "Can't implicitly convert bool to number" );
+			throw CoralException.GetArg( "Can't implicitly convert bool to number" );
 
 		// The remaining option is that they're numbers.
 		return (int)l + (int)r;
@@ -151,7 +151,7 @@ class AstExpression : AstNode
 					// This one is a bit trickier since we do different things based on different
 					// types, and the left side needs to be an LValue.
 					if( !(left is LValue) )
-						throw new ArgumentException( "Left-hand side of += must be LValue" );
+						throw CoralException.GetArg( "Left-hand side of += must be LValue" );
 
 					// We need to write the LValue back, but keep the result value on
 					// the result stack since this can be used as a normal expression too.
@@ -177,7 +177,7 @@ class AstExpression : AstNode
 						st.pushResult( !((bool)Util.CoerceBool( right ) ) );
 					}
 					else
-						throw new ArgumentException( "Unary operator not supported" );
+						throw CoralException.GetInvProg( "Unary operator not supported" );
 				}
 			} )
 		);

@@ -99,7 +99,7 @@ class AstArraySlice : AstNode
 				st.pushResult( StringObject.ArraySlice( (string)source, begin, end ) );
 			}
 			else
-				throw new ArgumentException( "Can't array slice this type" );
+				throw CoralException.GetArg( "Can't array slice this type" );
 		} ) );
 
 		// These are different enough that we just break them out.

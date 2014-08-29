@@ -63,7 +63,7 @@ class AstCall : AstNode
 	void runFunction( State st, object fvo )
 	{
 		if( !(fvo is FValue) )
-			throw new ArgumentException( "Attempted call to non-function" );
+			throw CoralException.GetArg( "Attempted call to non-function" );
 		FValue fv = (FValue)fvo;
 
 		if( fv.func != null )
@@ -94,7 +94,7 @@ class AstCall : AstNode
 			fv.metal( st, param );
 		}
 		else
-			throw new ArgumentException( "Null function!" );
+			throw CoralException.GetArg( "Attempt to call null function" );
 	}
 
 	const string ScopeMarker = "call: scope";
@@ -122,7 +122,7 @@ class AstCall : AstNode
 			else if( fvo is LValue )
 				fvo = LValue.Deref( st, fvo );
 			else
-				throw new ArgumentException( "Attempted call to non-function" );
+				throw CoralException.GetArg( "Attempted call to non-function" );
 			st.pushResult( fvo );
 
 			// Push on a scope marker so that the function will run in its own scope.
