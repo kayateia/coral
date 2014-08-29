@@ -107,9 +107,19 @@ public class Runner
 	}
 
 	/// <summary>
-	/// Calls a Coral function and returns its return value.
+	/// Calls a Coral function synchronously and returns its return value.
 	/// </summary>
 	public object callFunction( string name, object[] args, System.Type returnType )
+	{
+		CallFunction( _state, name, args );
+		runSync();
+		return Util.CoerceToDotNet( returnType, _state.popResult() );
+	}
+
+	/// <summary>
+	/// Queues a Coral function to run asynchronously.
+	/// </summary>
+	static public void CallFunction( State state, string name, object[] args )
 	{
 		// Convert the arguments.
 		AstNode[] wrapped = new AstNode[args.Length];
@@ -122,10 +132,7 @@ public class Runner
 		// Construct a synthetic AstCall.
 		AstCall call = new AstCall( id, wrapped );
 
-		call.run( _state );
-		runSync();
-
-		return Util.CoerceToDotNet( returnType, _state.popResult() );
+		call.run( state );
 	}
 
 	public void setupConstants()

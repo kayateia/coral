@@ -44,6 +44,10 @@ public interface IExtensible
 	/// <summary>
 	/// Gets a property value by name.
 	/// </summary>
+	/// <remarks>
+	/// If the returned value is an AsyncAction, we will assume that the method has
+	/// not actually executed yet, and AsyncAction is just instructions how to do so.
+	/// </remarks>
 	object callMethod( State state, string name, object[] args );
 
 	/// <summary>

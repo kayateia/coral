@@ -201,7 +201,10 @@ public class Passthrough
 
 					object rv = ext.callMethod( state, name, coerced );
 
-					st.pushResult( Util.CoerceFromDotNet( rv ) );
+					if( rv is AsyncAction || rv is AsyncAction[] )
+						handleAsyncActions( state, rv );
+					else
+						st.pushResult( Util.CoerceFromDotNet( rv ) );
 				}
 			);
 		}
@@ -213,6 +216,49 @@ public class Passthrough
 
 		// This really shouldn't happen.
 		throw CoralException.GetInvProg( "Member doesn't exist (invalid)" );
+	}
+
+	void handleAsyncActions( State state, object a )
+	{
+		AsyncAction[] actions;
+		if( a is AsyncAction )
+			actions = new AsyncAction[] { (AsyncAction)a };
+		else
+			actions = (AsyncAction[])a;
+
+		// We'll do these in reverse order since they'll come off the stack backwards.
+		for( int i=actions.Length - 1; i>=0; --i )
+		{
+			var act = actions[i];
+			switch( act.action )
+			{
+			case AsyncAction.Action.Exit:
+				// TODO: Handle this.
+				break;
+
+			case AsyncAction.Action.Variable:
+				state.pushAction( new Step( null, st =>
+					{
+						st.scope.set( act.name, act.value );
+					}, "async: set variable" ) );
+				break;
+
+			case AsyncAction.Action.Code:
+				act.code.root.run( state );
+				break;
+
+			case AsyncAction.Action.Call:
+				Runner.CallFunction( state, act.name, act.args );
+				break;
+
+			case AsyncAction.Action.Callback:
+				state.pushAction( new Step( null, st =>
+					{
+						act.callback( st );
+					}, "async: callback" ) );
+				break;
+			}
+		}
 	}
 
 	void doMemberWrite( State state, string name, object val )
