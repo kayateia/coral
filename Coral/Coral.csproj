@@ -74,6 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\ConstScope.cs" />
     <Compile Include="Runtime\CompilationException.cs" />
+    <Compile Include="Runtime\UnhandledException.cs" />
     <Compile Include="Runtime\CoralException.cs" />
     <Compile Include="Runtime\IExtensible.cs" />
     <Compile Include="Runtime\LookupScope.cs" />

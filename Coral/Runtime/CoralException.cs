@@ -83,16 +83,7 @@ public class CoralException : System.Exception
 	{
 		get
 		{
-			if( _obj != null && _obj is Dictionary<object,object> )
-			{
-				var dict = (Dictionary<object,object>)_obj;
-				if( dict.ContainsKey( "name" ) )
-					return Util.CoerceString( dict["name"] );
-				else
-					return null;
-			}
-			else
-				return null;
+			return getValue( "name" );
 		}
 	}
 
@@ -100,12 +91,30 @@ public class CoralException : System.Exception
 	{
 		get
 		{
+			string msg = getValue( "message" );
+			if( !msg.IsNullOrEmpty() )
+				return msg;
+
 			string name = this.name;
 			if( name != null )
 				return name;
 			else
 				return base.Message;
 		}
+	}
+
+	string getValue( string key )
+	{
+		if( _obj != null && _obj is Dictionary<object,object> )
+		{
+			var dict = (Dictionary<object,object>)_obj;
+			if( dict.ContainsKey( key ) )
+				return Util.CoerceString( dict[key] );
+			else
+				return null;
+		}
+		else
+			return null;
 	}
 
 	object _obj;

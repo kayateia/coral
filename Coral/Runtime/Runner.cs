@@ -51,12 +51,32 @@ public class Runner
 	/// Executes what's already on the stack. Assumes an already-set-up
 	/// environment with scopes and all.
 	/// </summary>
+	/// <exception cref="CoralException">Can be thrown if an exception "escapes" the script.</exception>
 	void runSync()
 	{
 		while( _state.getActionCount() > 0 )
 		{
 			var act = _state.popAction();
-			act.action( _state );
+			try
+			{
+				act.action( _state );
+			}
+			catch( CoralException ex )
+			{
+				// Something went wrong while executing that instruction. Cause a throw.
+				AstTry.ThrowException( _state, ex.data );
+			}
+			catch( UnhandledException ex )
+			{
+				// This "escaped" the script, so re-throw it here manually to avoid hitting
+				// the CoralException catcher above.
+				throw ex.InnerException;
+			}
+			catch( Exception ex )
+			{
+				// Wrap anything else (e.g. div by zero) as an invalid operation exception and do normal processing.
+				AstTry.ThrowException( _state, CoralException.GetInvOp( ex.Message ).data );
+			}
 		}
 	}
 

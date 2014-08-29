@@ -26,7 +26,7 @@ namespace Kayateia.Climoo.Scripting.Coral
 /// <remarks>
 /// You can throw any object (including null), but it is recommended to follow
 /// the convention of throwing a dictionary/object with a "name" parameter specifying
-/// the exception.
+/// the exception, and a "message" parameter specifying more info.
 /// </remarks>
 class AstThrow : AstNode
 {

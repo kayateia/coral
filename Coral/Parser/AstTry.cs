@@ -129,8 +129,10 @@ class AstTry : AstNode
 	{
 		Step tryStep = state.findAction( step => IsTryMarker( step ) );
 		if( tryStep == null )
+		{
 			// TODO: make this include a stack trace.
-			throw new CoralException( thrown );
+			throw new UnhandledException( new CoralException( thrown ) );
+		}
 
 		AstTry node = (AstTry)tryStep.node;
 		node.throwException( state, thrown );
