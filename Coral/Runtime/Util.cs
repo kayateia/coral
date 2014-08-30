@@ -132,7 +132,7 @@ static public class Util
 			var pmo = value as Passthrough.PassthroughMetalObject;
 			if( pmo != null )
 			{
-				if( pmo.innerObject.GetType() == netType )
+				if( netType.IsAssignableFrom( pmo.innerObject.GetType() ) )
 					rv = pmo.innerObject;
 			}
 			else if( netType == typeof( object ) )
