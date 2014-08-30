@@ -122,9 +122,7 @@ public class Runner
 	static public void CallFunction( State state, string name, object[] args )
 	{
 		// Convert the arguments.
-		AstNode[] wrapped = new AstNode[args.Length];
-		for( int i=0; i<args.Length; ++i )
-			wrapped[i] = new WrapperAstObject( Util.CoerceFromDotNet( args[i] ) );
+		AstNode[] wrapped = WrapArgs( args );
 
 		// Construct a synthetic AstIdentifier for the name.
 		AstIdentifier id = new AstIdentifier( name );
@@ -133,6 +131,33 @@ public class Runner
 		AstCall call = new AstCall( id, wrapped );
 
 		call.run( state );
+	}
+
+	/// <summary>
+	/// Queues a Coral function to run asynchronously.
+	/// </summary>
+	static public void CallFunction( State state, FValue func, object[] args )
+	{
+		// Convert the arguments.
+		AstNode[] wrapped = WrapArgs( args );
+
+		// Construct a synthetic AstIdentifier for the name.
+		AstNode funcNode = new WrapperAstObject( func );
+
+		// Construct a synthetic AstCall.
+		AstCall call = new AstCall( funcNode, wrapped );
+
+		call.run( state );
+	}
+
+	// Wraps the arguments in AstNodes that can be executed.
+	static AstNode[] WrapArgs( object[] args )
+	{
+		AstNode[] wrapped = new AstNode[args.Length];
+		for( int i=0; i<args.Length; ++i )
+			wrapped[i] = new WrapperAstObject( Util.CoerceFromDotNet( args[i] ) );
+
+		return wrapped;
 	}
 
 	public void setupConstants()

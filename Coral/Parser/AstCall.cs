@@ -60,43 +60,6 @@ class AstCall : AstNode
 		return false;
 	}
 
-	void runFunction( State st, object fvo )
-	{
-		if( !(fvo is FValue) )
-			throw CoralException.GetArg( "Attempted call to non-function" );
-		FValue fv = (FValue)fvo;
-
-		if( fv.func != null )
-		{
-			// Set a second scope with just the parameters.
-			IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
-			st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
-
-			var argsArray = new List<object>();
-			st.scope.set( "arguments", argsArray );
-			for( int i=0; i<this.parameters.Length; ++i )
-			{
-				object value = LValue.Deref( st );
-				if( i < fv.func.parameters.Length )
-				{
-					string name = fv.func.parameters[i];
-					st.scope.set( name, value );
-				}
-				argsArray.Add( value );
-			}
-
-			// Do the actual function call.
-			fv.func.block.run( st );
-		}
-		else if( fv.metal != null )
-		{
-			object[] param = this.parameters.Select( n => LValue.Deref( st ) ).ToArray();
-			fv.metal( st, param );
-		}
-		else
-			throw CoralException.GetArg( "Attempt to call null function" );
-	}
-
 	const string ScopeMarker = "call: scope";
 
 	/// <summary>
@@ -123,10 +86,33 @@ class AstCall : AstNode
 				fvo = LValue.Deref( st, fvo );
 			else
 				throw CoralException.GetArg( "Attempted call to non-function" );
-			st.pushResult( fvo );
+			if( fvo == null )
+				throw CoralException.GetArg( "Attempted call to null function" );
+			FValue fv = (FValue)fvo;
+
+			// Gather arguments before we push any scopes.
+			var argsArray = new List<object>();
+			if( fv.func != null )
+			{
+				for( int i=0; i<this.parameters.Length; ++i )
+				{
+					object value = LValue.Deref( st );
+					argsArray.Add( value );
+				}
+			}
+			else
+			{
+				object[] args = this.parameters.Select( n => LValue.Deref( st ) ).ToArray();
+				argsArray.AddRange( args );
+			}
 
 			// Push on a scope marker so that the function will run in its own scope.
-			st.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), new StandardScope( st.scope ) );
+			IScope oldScope;
+			if( fv.scope == null )
+				oldScope = st.constScope;
+			else
+				oldScope = fv.scope;
+			st.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), new StandardScope( oldScope ) );
 
 			if( ((FValue)fvo).func != null )
 			{
@@ -137,7 +123,31 @@ class AstCall : AstNode
 			}
 
 			// The actual run action.
-			st.pushAction( new Step( this, st2 => runFunction( st2, st.popResult() ) ) );
+			if( fv.func != null )
+			{
+				// Set a second scope with just the parameters.
+				IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
+				st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
+
+				st.scope.set( "arguments", argsArray );
+				for( int i=0; i<argsArray.Count; ++i )
+					if( i < fv.func.parameters.Length )
+					{
+						string name = fv.func.parameters[i];
+						st.scope.set( name, argsArray[i] );
+					}
+					else
+						break;
+
+				// Do the actual function call.
+				fv.func.block.run( st );
+			}
+			else if( fv.metal != null )
+			{
+				fv.metal( st, argsArray.ToArray() );
+			}
+			else
+				throw CoralException.GetArg( "Attempt to call null function" );
 		} ) );
 		this.source.run( state );
 		foreach( AstNode p in this.parameters )

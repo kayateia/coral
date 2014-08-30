@@ -31,6 +31,12 @@ public class FValue
 	/// The function we're representing, if this is metal code.
 	/// </summary>
 	public MetalCallback metal;
+
+	/// <summary>
+	/// Represents the lexical closure attached to this function. For metal
+	/// callbacks, this is null.
+	/// </summary>
+	public IScope scope;
 }
 
 }

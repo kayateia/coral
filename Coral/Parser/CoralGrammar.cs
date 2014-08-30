@@ -122,6 +122,7 @@ class CoralGrammar : Grammar
 			| MemberAccess
 			| ArrayExpr
 			| FunctionCall
+			| FunctionDef
 			| DictExpr
 			| ArrayAccess
 			| ArraySliceFull
@@ -230,7 +231,11 @@ class CoralGrammar : Grammar
 		ParamList.Rule = MakeStarRule( ParamList, comma, identifier );
 		ArgList.Rule = MakeStarRule( ArgList, comma, Expr );
 
-		FunctionDef.Rule = "def" + identifier + "(" + ParamList + ")" + colon + Eos + Block;
+		FunctionDef.Rule 
+			= "def" + identifier + "(" + ParamList + ")" + colon + Eos + Block
+			| "def" + ToTerm( "(" ) + ParamList + ")" + colon + Stmt
+			;
+
 		FunctionDef.NodeCaptionTemplate = "def #{1}(...)";
 		FunctionCall.Rule
 			= identifier + "(" + ArgList + ")"
@@ -287,6 +292,7 @@ class CoralGrammar : Grammar
 		RegisterOperators( 5, "+", "-" );
 		RegisterOperators( 6, "*", "/" );
 		RegisterOperators( 7, Associativity.Right, "**" );
+		RegisterOperators( 12, "++", "--" );
 
 		// 6. Miscellaneous: punctuation, braces, transient nodes
 		MarkPunctuation( "(", ")", ":" );

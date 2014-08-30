@@ -70,13 +70,15 @@ public class AstFunc : AstNode
 		// just push an FValue on the result stack and call it done. For the non-lambda case,
 		// we create a variable in the scope with an FValue in it. In either case, there's not
 		// much actual executing being done here.
+		FValue fv = new FValue( this );
+		fv.scope = state.scope;
 		if( this.lambda )
 		{
-			state.pushAction( new Step( this, st => st.pushResult( new FValue( this ) ) ) );
+			state.pushAction( new Step( this, st => st.pushResult( fv ) ) );
 		}
 		else
 		{
-			state.pushAction( new Step( this, st => st.scope.set( this.name, new FValue( this ) ) ) );
+			state.pushAction( new Step( this, st => st.scope.set( this.name, fv ) ) );
 		}
 	}
 

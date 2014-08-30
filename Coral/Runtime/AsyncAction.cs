@@ -88,6 +88,11 @@ public class AsyncAction
 	/// Callback for Callback.
 	/// </summary>
 	public Action<State> callback { get; set; }
+
+	/// <summary>
+	/// A function, for Call.
+	/// </summary>
+	public FValue function { get; set; }
 }
 
 }
