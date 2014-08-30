@@ -116,17 +116,14 @@ class AstCall : AstNode
 				oldScope = fv.scope;
 			st.pushActionAndScope( new Step( this, a => {}, ScopeMarker ), new StandardScope( oldScope ) );
 
-			if( ((FValue)fvo).func != null )
+			// The actual run action.
+			if( fv.func != null )
 			{
 				// Push on a pusher for a null return value. This is to ensure that calls always return
 				// something, for result stack sanity. This won't get executed if the function returns
 				// a value on its own.
 				st.pushAction( new Step( this, st2 => st2.pushResult( null ), "call: result pusher" ) );
-			}
 
-			// The actual run action.
-			if( fv.func != null )
-			{
 				// Set a second scope with just the parameters.
 				IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
 				st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
