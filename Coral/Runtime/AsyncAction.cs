@@ -93,6 +93,11 @@ public class AsyncAction
 	/// A function, for Call.
 	/// </summary>
 	public FValue function { get; set; }
+
+	/// <summary>
+	/// Stack frame, for Call.
+	/// </summary>
+	public StackTrace.StackFrame frame { get; set; }
 }
 
 }

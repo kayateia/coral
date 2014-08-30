@@ -35,12 +35,13 @@ class AstThrow : AstNode
 	/// </summary>
 	public AstNode param { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "ThrowStmt" )
 		{
 			if( node.ChildNodes.Count > 1 )
-				this.param = Compiler.ConvertNode( node.ChildNodes[1] );
+				this.param = c.convertNode( node.ChildNodes[1] );
 			return true;
 		}
 
@@ -61,7 +62,7 @@ class AstThrow : AstNode
 	public override string ToString()
 	{
 		if( this.param != null )
-			return "<throw {0}".FormatI( this.param );
+			return "<throw {0}>".FormatI( this.param );
 		else
 			return "<throw>";
 	}

@@ -61,16 +61,17 @@ class AstIf : AstNode
 	/// </summary>
 	public IfClause[] clauses { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "IfStmt" )
 		{
 			var cl = new List<IfClause>();
 
 			// Add in the main if clause first.
 			cl.Add( new IfClause(
-				condition: Compiler.ConvertNode( node.ChildNodes[1] ),
-				block: (AstStatements)Compiler.ConvertNode( node.ChildNodes[2] )
+				condition: c.convertNode( node.ChildNodes[1] ),
+				block: (AstStatements)c.convertNode( node.ChildNodes[2] )
 			) );
 
 			// Do we have Elif or Else clauses?
@@ -85,8 +86,8 @@ class AstIf : AstNode
 							throw new CompilationException( "ElifClause expected", n );
 
 						cl.Add( new IfClause(
-							condition: Compiler.ConvertNode( n.ChildNodes[1] ),
-							block: (AstStatements)Compiler.ConvertNode( n.ChildNodes[2] )
+							condition: c.convertNode( n.ChildNodes[1] ),
+							block: (AstStatements)c.convertNode( n.ChildNodes[2] )
 						) );
 					}
 				}
@@ -94,7 +95,7 @@ class AstIf : AstNode
 				{
 					cl.Add( new IfClause(
 						condition: null,
-						block: (AstStatements)Compiler.ConvertNode( node.ChildNodes[i].ChildNodes[1] )
+						block: (AstStatements)c.convertNode( node.ChildNodes[i].ChildNodes[1] )
 					) );
 				}
 				else

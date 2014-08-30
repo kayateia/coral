@@ -48,13 +48,14 @@ public class AstFunc : AstNode
 	/// </summary>
 	public bool lambda { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "FunctionDef" )
 		{
 			this.name = node.ChildNodes[1].Token.Text;
 			this.parameters = node.ChildNodes[2].ChildNodes.Select( n => n.Token.Text ).ToArray();
-			this.block = Compiler.ConvertNode( node.ChildNodes[3] );
+			this.block = c.convertNode( node.ChildNodes[3] );
 			this.lambda = false;
 
 			return true;

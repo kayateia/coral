@@ -34,17 +34,18 @@ public class Compiler
 	/// <summary>
 	/// Compile a code fragment into a CodeFragment, containing a compiled AST.
 	/// </summary>
-	static public CodeFragment Compile( string s )
+	static public CodeFragment Compile( string unitName, string s )
 	{
 		if( s_parser == null )
 			s_parser = new Parser( new CoralGrammar() );
 		ParseTree tree = s_parser.Parse( s );
 		if( tree.HasErrors() )
-			return new CodeFragment( tree );
+			return new CodeFragment( tree, unitName );
 
+		Compiler c = new Compiler( unitName );
 		try
 		{
-			AstNode node = ConvertNode( tree.Root );
+			AstNode node = c.convertNode( tree.Root );
 			return new CodeFragment( node );
 		}
 		catch( CompilationException ex )
@@ -53,19 +54,26 @@ public class Compiler
 		}
 	}
 
+	internal Compiler( string unitName )
+	{
+		this.unitName = unitName;
+	}
+
 	// Converts a single ParseTreeNode into an AstNode if possible.
-	static internal AstNode ConvertNode( ParseTreeNode t )
+	internal AstNode convertNode( ParseTreeNode t )
 	{
 		if( t.Term.HasAstConfig() )
 		{
 			Type converter = t.Term.AstConfig.NodeType;
 			AstNode n = (AstNode)Activator.CreateInstance( converter );
-			if( n.convert( t ) )
+			if( n.convert( t, this ) )
 				return n;
 		}
 
 		throw new CompilationException( "Can't convert node type {0}".FormatI( t.Term.Name ), t );
 	}
+
+	public string unitName { get; private set; }
 
 	static Parser s_parser = null;
 }

@@ -36,12 +36,13 @@ class AstAssignment : AstNode
 	/// </summary>
 	public AstNode rhs { get; private set; }
 
-	public override bool convert( ParseTreeNode node )
+	public override bool convert( ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "AssignmentStmt" )
 		{
-			this.lhs = Compiler.ConvertNode( node.ChildNodes[0] );
-			this.rhs = Compiler.ConvertNode( node.ChildNodes[2] );
+			this.lhs = c.convertNode( node.ChildNodes[0] );
+			this.rhs = c.convertNode( node.ChildNodes[2] );
 			return true;
 		}
 

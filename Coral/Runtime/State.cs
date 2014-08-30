@@ -30,12 +30,16 @@ public class State
 {
 	public State()
 	{
+		_stack = new Stack<Step>();
+		_prevStep = null;
+
+		_resultStack = new Stack<object>();
+
 		_constScope = new ConstScope();
 		_lookupScope = new LookupScope( _constScope );
 		_rootScope = new StandardScope( _lookupScope );
+
 		_baggage = new StandardScope();
-		_stack = new Stack<Step>();
-		_resultStack = new Stack<object>();
 	}
 
 	/// <summary>
@@ -120,7 +124,8 @@ public class State
 	{
 		if( !_stack.Any() )
 			throw new InvalidOperationException( "Action stack is empty" );
-		return _stack.Pop();
+		_prevStep = _stack.Pop();
+		return _prevStep;
 	}
 
 	/// <summary>
@@ -157,6 +162,71 @@ public class State
 	}
 
 	/// <summary>
+	/// Remove everything from the action stack. This is basically only used
+	/// when an exception happens with no handler.
+	/// </summary>
+	public void clearActions()
+	{
+		_stack.Clear();
+	}
+
+	/// <summary>
+	/// Returns a stack trace of the currently executing code.
+	/// </summary>
+	/// <remarks>
+	/// This returns a stack trace including the step that was just popped.
+	/// </remarks>
+	public StackTrace getStackTrace()
+	{
+		// Our basic algorithm in this method is to first search for the first stack item
+		// that has a non-null AstNode. This becomes the specific location where the code
+		// is/was executing. We then search for the top-most full statement underneath
+		// that, and that becomes the "function name" (which may not be a function in this
+		// case). After that we just look for function call frames.
+
+		var frames = new List<StackTrace.StackFrame>();
+
+		// Start with the currently executing code.
+		bool gotTop = false;
+		StackTrace.StackFrame topMost = null;
+		var stackItems = new List<Step>();
+		stackItems.Add( _prevStep );
+		stackItems.AddRange( _stack );
+		foreach( Step s in stackItems )
+		{
+			if( !gotTop )
+			{
+				// Here we're looking for any top level statement.
+				if( s.node != null )
+				{
+					if( topMost == null )
+						topMost = StackTrace.StackFrame.Copy( s.node.frame );
+
+					if( s.node.statement )
+					{
+						topMost.funcName = s.node.frame.funcName;
+						frames.Add( topMost );
+						gotTop = true;
+					}
+				}
+			}
+			else
+			{
+				// At this point we're just looking for functions.
+				if( AstCall.IsScopeMarker( s ) )
+				{
+					frames.Add( StackTrace.StackFrame.Copy( s.node.frame ) );
+				}
+			}
+		}
+
+		return new StackTrace()
+		{
+			frames = frames.ToArray()
+		};
+	}
+
+	/// <summary>
 	/// Push a result onto the result stack.
 	/// </summary>
 	public void pushResult( object value )
@@ -181,10 +251,14 @@ public class State
 	}
 
 	Stack<Step> _stack;
+	Step _prevStep;
+
 	Stack<object> _resultStack;
+
 	IScope _rootScope;
 	LookupScope _lookupScope;
 	ConstScope _constScope;
+
 	IScope _baggage;
 }
 

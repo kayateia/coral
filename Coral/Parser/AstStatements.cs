@@ -37,14 +37,17 @@ class AstStatements : AstNode
 		get { return _children; }
 	}
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name != "StmtList" )
 			return false;
 
 		foreach( var child in node.ChildNodes )
 		{
-			_children.Add( Compiler.ConvertNode( child ) );
+			AstNode converted = c.convertNode( child );
+			converted.statement = true;
+			_children.Add( converted );
 		}
 
 		return true;

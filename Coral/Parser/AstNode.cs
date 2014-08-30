@@ -33,9 +33,50 @@ public abstract class AstNode
 	{
 	}
 
-	public abstract bool convert( Irony.Parsing.ParseTreeNode node );
+	public virtual bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
+	{
+		this.frame = new StackTrace.StackFrame()
+		{
+			line = node.Span.Location.Line + 1,
+			col = node.Span.Location.Column + 1,
+			unitName = c.unitName
+		};
+
+		return false;
+	}
 
 	public virtual void run( State state ) { }
+
+	/// <summary>
+	/// Associated stack frame, if any.
+	/// </summary>
+	/// <remarks>
+	/// This is for AstNodes to set; do not edit.
+	/// </remarks>
+	public StackTrace.StackFrame frame
+	{
+		get
+		{
+			if( _frame.isFuncNameDefault )
+				_frame.funcName = this.ToStringI();
+			return _frame;
+		}
+
+		set
+		{
+			_frame = value;
+		}
+	}
+
+	StackTrace.StackFrame _frame;
+
+	/// <summary>
+	/// True if this node represents a top level statement.
+	/// </summary>
+	/// <remarks>
+	/// This is for AstNodes to set; do not edit.
+	/// </remarks>
+	public bool statement { get; set; }
 }
 
 }

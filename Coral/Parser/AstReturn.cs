@@ -34,11 +34,12 @@ class AstReturn : AstNode
 	/// </summary>
 	public AstNode value { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "ReturnStmt" )
 		{
-			this.value = Compiler.ConvertNode( node.ChildNodes[1] );
+			this.value = c.convertNode( node.ChildNodes[1] );
 			return true;
 		}
 

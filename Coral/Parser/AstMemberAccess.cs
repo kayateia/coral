@@ -38,11 +38,12 @@ class AstMemberAccess : AstNode
 	/// </summary>
 	public string member { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "MemberAccess" )
 		{
-			this.rvalue = Compiler.ConvertNode( node.ChildNodes[0] );
+			this.rvalue = c.convertNode( node.ChildNodes[0] );
 			this.member = node.ChildNodes[2].Token.Text;
 			return true;
 		}

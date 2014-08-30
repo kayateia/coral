@@ -37,8 +37,9 @@ class AstIdentifier : AstNode
 	/// </summary>
 	public string name { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "Identifier" )
 		{
 			this.name = node.Token.Text;

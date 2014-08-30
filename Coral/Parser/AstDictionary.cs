@@ -40,8 +40,9 @@ class AstDictionary : AstNode
 		this.pairs = new List<Pair>();
 	}
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "DictExpr" )
 		{
 			var elems = node.ChildNodes[1];
@@ -55,8 +56,8 @@ class AstDictionary : AstNode
 
 				Pair p = new Pair()
 				{
-					key = Compiler.ConvertNode( child.ChildNodes[0] ),
-					value = Compiler.ConvertNode( child.ChildNodes[1] )
+					key = c.convertNode( child.ChildNodes[0] ),
+					value = c.convertNode( child.ChildNodes[1] )
 				};
 
 				this.pairs.Add( p );

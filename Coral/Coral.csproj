@@ -75,6 +75,7 @@
     <Compile Include="Runtime\AsyncAction.cs" />
     <Compile Include="Runtime\ConstScope.cs" />
     <Compile Include="Runtime\CompilationException.cs" />
+    <Compile Include="Runtime\StackTrace.cs" />
     <Compile Include="Runtime\Step.cs" />
     <Compile Include="Runtime\UnhandledException.cs" />
     <Compile Include="Runtime\CoralException.cs" />

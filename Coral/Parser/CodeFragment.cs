@@ -63,7 +63,15 @@ public class CodeFragment
 		get; private set;
 	}
 
-	internal CodeFragment( Irony.Parsing.ParseTree tree )
+	/// <summary>
+	/// The name of this compilation unit.
+	/// </summary>
+	public string unitName
+	{
+		get; private set;
+	}
+
+	internal CodeFragment( Irony.Parsing.ParseTree tree, string unitName )
 	{
 		var errors = new List<Error>();
 		foreach( var msg in tree.ParserMessages )
@@ -77,6 +85,7 @@ public class CodeFragment
 			);
 		}
 		this.errors = errors.ToArray();
+		this.unitName = unitName;
 	}
 
 	internal CodeFragment( CompilationException ex )

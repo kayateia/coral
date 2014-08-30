@@ -103,6 +103,21 @@ public class CoralException : System.Exception
 		}
 	}
 
+	/// <summary>
+	/// Represents our stack trace, if we have one. Otherwise null.
+	/// </summary>
+	public StackTrace trace { get; set; }
+
+	/// <summary>
+	/// Pass in the state and the step just executed. We'll temporarily push it
+	/// back on the stack to get a full trace.
+	/// </summary>
+	public void setStackTrace( State s )
+	{
+		this.trace = s.getStackTrace();
+		setValue( "trace", new List<object>( this.trace.frames.Select( f => f.ToStringI() ) ) );
+	}
+
 	string getValue( string key )
 	{
 		if( _obj != null && _obj is Dictionary<object,object> )
@@ -115,6 +130,15 @@ public class CoralException : System.Exception
 		}
 		else
 			return null;
+	}
+
+	void setValue( string key, object value )
+	{
+		if( _obj != null && _obj is Dictionary<object,object> )
+		{
+			var dict = (Dictionary<object,object>)_obj;
+			dict[key] = value;
+		}
 	}
 
 	object _obj;

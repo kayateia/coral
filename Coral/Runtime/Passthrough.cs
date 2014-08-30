@@ -249,9 +249,9 @@ public class Passthrough
 
 			case AsyncAction.Action.Call:
 				if( act.function != null )
-					Runner.CallFunction( state, act.function, act.args );
+					Runner.CallFunction( state, act.function, act.args, act.frame );
 				else
-					Runner.CallFunction( state, act.name, act.args );
+					Runner.CallFunction( state, act.name, act.args, act.frame );
 				break;
 
 			case AsyncAction.Action.Callback:

@@ -42,12 +42,13 @@ class AstArrayAccess : AstNode
 	{
 	}
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "ArrayAccess" )
 		{
-			this.source = Compiler.ConvertNode( node.ChildNodes[0] );
-			this.index = Compiler.ConvertNode( node.ChildNodes[2] );
+			this.source = c.convertNode( node.ChildNodes[0] );
+			this.index = c.convertNode( node.ChildNodes[2] );
 
 			return true;
 		}

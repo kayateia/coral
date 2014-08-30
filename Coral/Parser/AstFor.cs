@@ -43,18 +43,19 @@ class AstFor : AstNode
 	/// </summary>
 	public AstNode block { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "ForStmt" && node.ChildNodes.Count == 5 && node.ChildNodes[2].Token.Text == "in" )
 		{
 			// Get our loop variable.
 			this.loopVariable = node.ChildNodes[1].Token.Text;
 
 			// Convert the loop-over expression.
-			this.loopOver = Compiler.ConvertNode( node.ChildNodes[3] );
+			this.loopOver = c.convertNode( node.ChildNodes[3] );
 
 			// Convert the inner block.
-			this.block = Compiler.ConvertNode( node.ChildNodes[4] );
+			this.block = c.convertNode( node.ChildNodes[4] );
 
 			return true;
 		}

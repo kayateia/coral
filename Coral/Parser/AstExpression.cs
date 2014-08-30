@@ -61,12 +61,13 @@ class AstExpression : AstNode
 	/// </summary>
 	public AstNode right { get; private set; }
 
-	public override bool convert( ParseTreeNode node )
+	public override bool convert( ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "BinExpr" )
 		{
-			this.left = Compiler.ConvertNode( node.ChildNodes[0] );
-			this.right = Compiler.ConvertNode( node.ChildNodes[2] );
+			this.left = c.convertNode( node.ChildNodes[0] );
+			this.right = c.convertNode( node.ChildNodes[2] );
 			this.op = node.ChildNodes[1].Term.Name;
 
 			return true;
@@ -74,13 +75,13 @@ class AstExpression : AstNode
 		if( node.Term.Name == "UnExpr" )
 		{
 			this.op = node.ChildNodes[0].Term.Name;
-			this.right = Compiler.ConvertNode( node.ChildNodes[1] );
+			this.right = c.convertNode( node.ChildNodes[1] );
 			return true;
 		}
 		if( node.Term.Name == "NotExpr" )
 		{
 			this.op = "!";
-			this.right = Compiler.ConvertNode( node.ChildNodes[1] );
+			this.right = c.convertNode( node.ChildNodes[1] );
 			return true;
 		}
 

@@ -35,8 +35,9 @@ class AstArray : AstNode
 		this.values = new List<AstNode>();
 	}
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "ArrayExpr" )
 		{
 			var elems = node.ChildNodes[1];
@@ -44,7 +45,7 @@ class AstArray : AstNode
 				throw new CompilationException( "Expected ArrayElements", elems );
 
 			foreach( var child in elems.ChildNodes )
-				this.values.Add( Compiler.ConvertNode( child ) );
+				this.values.Add( c.convertNode( child ) );
 
 			return true;
 		}

@@ -164,6 +164,13 @@ static public class Util
 					rv.Add( CoerceFromDotNet( v ) );
 				return rv;
 			}
+			else if( value is Dictionary<object, object> || value is List<object> )
+			{
+				// There are potentially unsafe things in here if these were passed from
+				// outside the interpreter, but rewriting them would destroy their references
+				// from being passed across metal boundaries.
+				return value;
+			}
 			else
 			{
 				Passthrough pt = new Passthrough( value );

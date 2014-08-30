@@ -48,28 +48,29 @@ class AstTry : AstNode
 	/// </summary>
 	public AstNode finallyBlock { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "TryStmt" )
 		{
-			this.tryBlock = Compiler.ConvertNode( node.ChildNodes[1] );
+			this.tryBlock = c.convertNode( node.ChildNodes[1] );
 
 			if( node.ChildNodes.Count == 2 )
 				throw new InvalidOperationException( "Can't have a try block without except/finally" );
 
 			var except = node.ChildNodes[2];
 			if( except.ChildNodes.Count == 2 )
-				this.exceptBlock = Compiler.ConvertNode( except.ChildNodes[1] );
+				this.exceptBlock = c.convertNode( except.ChildNodes[1] );
 			else
 			{
 				this.exceptIdentifer = except.ChildNodes[1].Token.Text;
-				this.exceptBlock = Compiler.ConvertNode( except.ChildNodes[2] );
+				this.exceptBlock = c.convertNode( except.ChildNodes[2] );
 			}
 
 			if( node.ChildNodes.Count > 3 )
 			{
 				var fin = node.ChildNodes[3];
-				this.finallyBlock = Compiler.ConvertNode( fin.ChildNodes[1] );
+				this.finallyBlock = c.convertNode( fin.ChildNodes[1] );
 			}
 
 			return true;
@@ -94,6 +95,15 @@ class AstTry : AstNode
 	/// </param>
 	public void throwException( State state, object thrown )
 	{
+		// We want to have stack traces, so this is necessary... but we also want to
+		// throw data objects and not C# objects. So we have to convert back and forth.
+		if( !(thrown is CoralException) )
+			thrown = new CoralException( thrown );
+		var cex = (CoralException)thrown;
+		if( cex.trace == null )
+			cex.setStackTrace( state );
+		thrown = cex.data;
+
 		state.pushAction( new Step( this, st =>
 			{
 				// We'll want to hold on to the finally runner if there is one. This will
@@ -130,8 +140,21 @@ class AstTry : AstNode
 		Step tryStep = state.findAction( step => IsTryMarker( step ) );
 		if( tryStep == null )
 		{
-			// TODO: make this include a stack trace.
-			throw new UnhandledException( new CoralException( thrown ) );
+			// Make sure we have a CoralException.
+			if( !(thrown is CoralException) )
+				thrown = new CoralException( thrown );
+
+			CoralException cex = (CoralException)thrown;
+			if( cex.trace == null )
+				cex.setStackTrace( state );
+
+			// Unwind everything else off the stack. There is an implicit "except" at the top anyway.
+			state.clearActions();
+
+			// Push on a thrower. We do this in a separate step so that the same try/catch can deal
+			// with it at the Runner level.
+			state.pushAction( new Step( null, a => { throw new UnhandledException( (CoralException)thrown ); }, "re-thrower" ) );
+			return;
 		}
 
 		AstTry node = (AstTry)tryStep.node;

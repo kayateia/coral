@@ -47,27 +47,28 @@ class AstArraySlice : AstNode
 	{
 	}
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "ArraySliceFull" )
 		{
-			this.source = Compiler.ConvertNode( node.ChildNodes[0] );
-			this.begin = Compiler.ConvertNode( node.ChildNodes[2] );
-			this.end = Compiler.ConvertNode( node.ChildNodes[3] );
+			this.source = c.convertNode( node.ChildNodes[0] );
+			this.begin = c.convertNode( node.ChildNodes[2] );
+			this.end = c.convertNode( node.ChildNodes[3] );
 
 			return true;
 		}
 		else if( node.Term.Name == "ArraySliceFromStart" )
 		{
-			this.source = Compiler.ConvertNode( node.ChildNodes[0] );
-			this.end = Compiler.ConvertNode( node.ChildNodes[2] );
+			this.source = c.convertNode( node.ChildNodes[0] );
+			this.end = c.convertNode( node.ChildNodes[2] );
 
 			return true;
 		}
 		else if( node.Term.Name == "ArraySliceFromEnd" )
 		{
-			this.source = Compiler.ConvertNode( node.ChildNodes[0] );
-			this.begin = Compiler.ConvertNode( node.ChildNodes[2] );
+			this.source = c.convertNode( node.ChildNodes[0] );
+			this.begin = c.convertNode( node.ChildNodes[2] );
 
 			return true;
 		}

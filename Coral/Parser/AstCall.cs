@@ -30,10 +30,11 @@ class AstCall : AstNode
 {
 	public AstCall() { }
 
-	public AstCall( AstNode source, AstNode[] parameters )
+	public AstCall( AstNode source, AstNode[] parameters, StackTrace.StackFrame frame )
 	{
 		this.source = source;
 		this.parameters = parameters;
+		this.frame = frame;
 	}
 
 	/// <summary>
@@ -47,12 +48,13 @@ class AstCall : AstNode
 	/// </summary>
 	public AstNode[] parameters { get; private set; }
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "FunctionCall" )
 		{
-			this.source = Compiler.ConvertNode( node.ChildNodes[0] );
-			this.parameters = node.ChildNodes[1].ChildNodes.Select( n => Compiler.ConvertNode( n ) ).ToArray();
+			this.source = c.convertNode( node.ChildNodes[0] );
+			this.parameters = node.ChildNodes[1].ChildNodes.Select( n => c.convertNode( n ) ).ToArray();
 
 			return true;
 		}

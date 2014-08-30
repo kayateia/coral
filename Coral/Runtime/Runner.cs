@@ -64,18 +64,26 @@ public class Runner
 			catch( CoralException ex )
 			{
 				// Something went wrong while executing that instruction. Cause a throw.
-				AstTry.ThrowException( _state, ex.data );
+				if( ex.trace == null )
+					ex.setStackTrace( _state );
+				AstTry.ThrowException( _state, ex );
 			}
 			catch( UnhandledException ex )
 			{
 				// This "escaped" the script, so re-throw it here manually to avoid hitting
 				// the CoralException catcher above.
+				var cex = (CoralException)ex.InnerException;
+				if( cex.trace == null )
+					cex.setStackTrace( _state );
 				throw ex.InnerException;
 			}
 			catch( Exception ex )
 			{
 				// Wrap anything else (e.g. div by zero) as an invalid operation exception and do normal processing.
-				AstTry.ThrowException( _state, CoralException.GetInvOp( ex.Message ).data );
+				var cex = CoralException.GetInvOp( ex.Message );
+				if( cex.trace == null )
+					cex.setStackTrace( _state );
+				AstTry.ThrowException( _state, cex );
 			}
 		}
 	}
@@ -109,9 +117,9 @@ public class Runner
 	/// <summary>
 	/// Calls a Coral function synchronously and returns its return value.
 	/// </summary>
-	public object callFunction( string name, object[] args, System.Type returnType )
+	public object callFunction( string name, object[] args, System.Type returnType, StackTrace.StackFrame frame )
 	{
-		CallFunction( _state, name, args );
+		CallFunction( _state, name, args, frame );
 		runSync();
 		return Util.CoerceToDotNet( returnType, _state.popResult() );
 	}
@@ -119,7 +127,7 @@ public class Runner
 	/// <summary>
 	/// Queues a Coral function to run asynchronously.
 	/// </summary>
-	static public void CallFunction( State state, string name, object[] args )
+	static public void CallFunction( State state, string name, object[] args, StackTrace.StackFrame frame )
 	{
 		// Convert the arguments.
 		AstNode[] wrapped = WrapArgs( args );
@@ -128,7 +136,7 @@ public class Runner
 		AstIdentifier id = new AstIdentifier( name );
 
 		// Construct a synthetic AstCall.
-		AstCall call = new AstCall( id, wrapped );
+		AstCall call = new AstCall( id, wrapped, frame );
 
 		call.run( state );
 	}
@@ -136,7 +144,7 @@ public class Runner
 	/// <summary>
 	/// Queues a Coral function to run asynchronously.
 	/// </summary>
-	static public void CallFunction( State state, FValue func, object[] args )
+	static public void CallFunction( State state, FValue func, object[] args, StackTrace.StackFrame frame )
 	{
 		// Convert the arguments.
 		AstNode[] wrapped = WrapArgs( args );
@@ -145,7 +153,7 @@ public class Runner
 		AstNode funcNode = new WrapperAstObject( func );
 
 		// Construct a synthetic AstCall.
-		AstCall call = new AstCall( funcNode, wrapped );
+		AstCall call = new AstCall( funcNode, wrapped, frame );
 
 		call.run( state );
 	}

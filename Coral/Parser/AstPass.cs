@@ -25,8 +25,9 @@ namespace Kayateia.Climoo.Scripting.Coral
 /// </summary>
 class AstPass : AstNode
 {
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		if( node.Term.Name == "PassStmt" )
 		{
 			return true;

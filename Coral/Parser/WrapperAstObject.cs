@@ -39,8 +39,9 @@ class WrapperAstObject : AstNode
 		get; private set;
 	}
 
-	public override bool convert( Irony.Parsing.ParseTreeNode node )
+	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
+		base.convert( node, c );
 		return false;
 	}
 
