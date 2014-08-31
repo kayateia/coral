@@ -127,7 +127,7 @@ class AstExpression : AstNode
 		if( l is bool && r is bool )
 			return (bool)l == (bool)r;
 		if( l is Passthrough.PassthroughMetalObject && r is Passthrough.PassthroughMetalObject )
-			return ((Passthrough.PassthroughMetalObject)l).innerObject == ((Passthrough.PassthroughMetalObject)r).innerObject;
+			return ((Passthrough.PassthroughMetalObject)l).innerObject.Equals( ((Passthrough.PassthroughMetalObject)r).innerObject );
 		if( l == null && r == null )
 			return true;
 
