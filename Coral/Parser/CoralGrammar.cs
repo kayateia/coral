@@ -95,6 +95,7 @@ class CoralGrammar : Grammar
 		var ForStmt = new NonTerminal( "ForStmt", typeof( AstFor ) );
 		var BreakStmt = new NonTerminal( "BreakStmt", typeof( AstBreak ) );
 		var PassStmt = new NonTerminal( "PassStmt", typeof( AstPass ) );
+		var WhileStmt = new NonTerminal( "WhileStmt", typeof( AstWhile ) );
 		var ArrayAccess = new NonTerminal( "ArrayAccess", typeof( AstArrayAccess ) );
 		var ArraySliceFull = new NonTerminal( "ArraySliceFull", typeof( AstArraySlice ) );
 		var ArraySliceFromStart = new NonTerminal( "ArraySliceFromStart", typeof( AstArraySlice ) );
@@ -223,7 +224,9 @@ class CoralGrammar : Grammar
 			| IfStmt
 			| TryStmt
 			| ThrowStmt
-			| ForStmt;
+			| ForStmt
+			| WhileStmt
+			;
 		StmtList.Rule = MakePlusRule( StmtList, ExtStmt );
 
 		Block.Rule = Indent + StmtList + Dedent;
@@ -256,6 +259,10 @@ class CoralGrammar : Grammar
 
 		BreakStmt.Rule = "break";
 		PassStmt.Rule = "pass";
+
+		WhileStmt.Rule
+			= "while" + Expr + colon + Eos + Block
+			;
 
 		// This weird song and dance is required because for some reason, Irony is not including
 		// colon terminals in the parse tree. (Maybe a setting having to do with a Python based

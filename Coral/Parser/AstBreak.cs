@@ -42,7 +42,7 @@ class AstBreak : AstNode
 		// marker, then unwinding past that.
 		state.pushAction( new Step( this, st =>
 		{
-			st.unwindActions( step => AstFor.IsScopeMarker( step ) );
+			st.unwindActions( step => AstFor.IsScopeMarker( step ) || AstWhile.IsLoopMarker( step ) );
 		}, "break: stack unwinder" ) );
 	}
 

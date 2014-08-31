@@ -69,6 +69,7 @@
     <Compile Include="Parser\AstArraySlice.cs" />
     <Compile Include="Parser\AstThrow.cs" />
     <Compile Include="Parser\AstTry.cs" />
+    <Compile Include="Parser\AstWhile.cs" />
     <Compile Include="Parser\WrapperAstObject.cs" />
     <Compile Include="Parser\CoralGrammar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
