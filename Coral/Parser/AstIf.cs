@@ -116,7 +116,7 @@ class AstIf : AstNode
 	// block, or queues the next comparison.
 	void ifRunner( State st, int clauseIndex )
 	{
-		object result = st.popResult();
+		object result = LValue.Deref( st );
 		bool conv = Util.CoerceBool( result );
 
 		if( conv )
