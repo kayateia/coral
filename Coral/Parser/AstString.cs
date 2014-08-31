@@ -38,6 +38,13 @@ class AstString : AstNode
 			// Note that these come with the quotes still attached.
 			this.value = node.Token.Text;
 			this.value = this.value.Substring( 1, this.value.Length - 2 );
+
+			// We also have to do escaping ourselves. I'll just include a couple of common ones.
+			this.value = this.value.Replace( "\\n", "\n" );
+			this.value = this.value.Replace( "\\r", "\r" );
+			this.value = this.value.Replace( "\\t", "\t" );
+			this.value = this.value.Replace( "\\\\", "\\" );
+
 			return true;
 		}
 
