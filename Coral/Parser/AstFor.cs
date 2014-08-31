@@ -46,7 +46,7 @@ class AstFor : AstNode
 	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
 		base.convert( node, c );
-		if( node.Term.Name == "ForStmt" && node.ChildNodes.Count == 5 && node.ChildNodes[2].Token.Text == "in" )
+		if( node.Term.Name == "ForInStmt" && node.ChildNodes.Count == 5 && node.ChildNodes[2].Token.Text == "in" )
 		{
 			// Get our loop variable.
 			this.loopVariable = node.ChildNodes[1].Token.Text;

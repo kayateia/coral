@@ -92,7 +92,8 @@ class CoralGrammar : Grammar
 		var DictExpr = new NonTerminal( "DictExpr", typeof( AstDictionary ) );
 		var DictElement = new NonTerminal( "DictElement" );
 		var DictElements = new NonTerminal( "DictElements" );
-		var ForStmt = new NonTerminal( "ForStmt", typeof( AstFor ) );
+		var ForInStmt = new NonTerminal( "ForInStmt", typeof( AstFor ) );
+		var ForStmt = new NonTerminal( "ForStmt", typeof( AstWhile ) );
 		var BreakStmt = new NonTerminal( "BreakStmt", typeof( AstBreak ) );
 		var PassStmt = new NonTerminal( "PassStmt", typeof( AstPass ) );
 		var WhileStmt = new NonTerminal( "WhileStmt", typeof( AstWhile ) );
@@ -226,6 +227,7 @@ class CoralGrammar : Grammar
 			| IfStmt
 			| TryStmt
 			| ThrowStmt
+			| ForInStmt
 			| ForStmt
 			| WhileStmt
 			;
@@ -255,9 +257,12 @@ class CoralGrammar : Grammar
 		DictElement.Rule = Term + ":" + Expr;
 		DictElements.Rule = MakeStarRule( DictElements, comma, DictElement );
 
-		ForStmt.Rule
+		ForInStmt.Rule
 			= "for" + identifier + "in" + Expr + colon + Eos + Block
-			| "for" + AssignmentStmt + comma + Expr + comma + Expr + colon + Eos + Block;
+			;
+		ForStmt.Rule
+			= "for" + AssignmentStmt + comma + Expr + comma + Expr + colon + Eos + Block
+			;
 
 		BreakStmt.Rule = "break";
 		ContinueStmt.Rule = "continue";

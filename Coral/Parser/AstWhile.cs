@@ -38,6 +38,16 @@ class AstWhile : AstNode
 	/// </summary>
 	public AstNode block { get; private set; }
 
+	/// <summary>
+	/// The code we'll run before the while loop starts.
+	/// </summary>
+	public AstNode preLoop { get; private set; }
+
+	/// <summary>
+	/// The code we'll run after each iteration of the loop.
+	/// </summary>
+	public AstNode postLoop { get; private set; }
+
 	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
 		base.convert( node, c );
@@ -49,6 +59,16 @@ class AstWhile : AstNode
 			// Convert the inner block.
 			this.block = c.convertNode( node.ChildNodes[2] );
 
+			return true;
+		}
+
+		// This is really just a special case of a while loop, so we'll handle it here.
+		if( node.Term.Name == "ForStmt" )
+		{
+			this.preLoop = c.convertNode( node.ChildNodes[1] );
+			this.test = c.convertNode( node.ChildNodes[3] );
+			this.postLoop = c.convertNode( node.ChildNodes[5] );
+			this.block = c.convertNode( node.ChildNodes[6] );
 			return true;
 		}
 
@@ -68,7 +88,10 @@ class AstWhile : AstNode
 						{
 							oneIteration( st2 );
 						}, "while: next block runner" ) );
-					this.block.run( state );
+					if( this.postLoop != null )
+						this.postLoop.run( st );
+					st.pushAction( new Step( this, a => {}, BlockMarker ) );
+					this.block.run( st );
 				}
 			}, "while: test checker" ) );
 		this.test.run( state );
@@ -84,7 +107,7 @@ class AstWhile : AstNode
 		return step.description == LoopMarker;
 	}
 
-	const string BlockMarker = "while: next block runner";
+	const string BlockMarker = "while: block marker";
 
 	/// <summary>
 	/// Returns true if this step represents the marker that will start a new loop iteration.
@@ -103,6 +126,8 @@ class AstWhile : AstNode
 		// that break and continue work.
 		state.pushAction( new Step( this, a => {}, LoopMarker ) );
 		oneIteration( state );
+		if( this.preLoop != null )
+			this.preLoop.run( state );
 	}
 
 	public override string ToString()
