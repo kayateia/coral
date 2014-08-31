@@ -73,7 +73,7 @@ class AstFor : AstNode
 				{
 					oneIteration( st, array, curIndex + 1 );
 				},
-				"for: next iteration" )
+				NextIterationMarker )
 			);
 		}
 
@@ -90,9 +90,23 @@ class AstFor : AstNode
 
 	const string ScopeMarker = "for: scope";
 
-	static public bool IsScopeMarker( Step step )
+	/// <summary>
+	/// Returns true if this step represents the marker that ends the whole for loop.
+	/// </summary>
+	static public bool IsLoopMarker( Step step )
 	{
 		return step.description == ScopeMarker;
+	}
+
+	const string NextIterationMarker = "for: next iteration";
+
+	/// <summary>
+	/// Returns true if this step represents the marker that will start a new loop iteration.
+	/// </summary>
+	/// <remarks>The marker itself should be left on.</remarks>
+	static public bool IsBlockMarker( Step step )
+	{
+		return step.description == NextIterationMarker;
 	}
 
 	public override void run( State state )

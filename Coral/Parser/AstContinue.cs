@@ -21,14 +21,14 @@ namespace Kayateia.Climoo.Scripting.Coral
 {
 
 /// <summary>
-/// Breaks out of a for loop.
+/// Loops back to the beginning of a for loop.
 /// </summary>
-class AstBreak : AstNode
+class AstContinue : AstNode
 {
 	public override bool convert( Irony.Parsing.ParseTreeNode node, Compiler c )
 	{
 		base.convert( node, c );
-		if( node.Term.Name == "BreakStmt" )
+		if( node.Term.Name == "ContinueStmt" )
 		{
 			return true;
 		}
@@ -38,17 +38,17 @@ class AstBreak : AstNode
 
 	public override void run( State state )
 	{
-		// We execute here by searching up the stack for the for loop scope
-		// marker, then unwinding past that.
+		// We execute here by searching up the stack for the for loop block
+		// marker, then unwinding up to it.
 		state.pushAction( new Step( this, st =>
 		{
-			st.unwindActions( step => AstFor.IsLoopMarker( step ) || AstWhile.IsLoopMarker( step ) );
-		}, "break: stack unwinder" ) );
+			st.unwindActions( step => AstFor.IsBlockMarker( step ) || AstWhile.IsBlockMarker( step ), true );
+		}, "continue: stack unwinder" ) );
 	}
 
 	public override string ToString()
 	{
-		return "<break>";
+		return "<continue>";
 	}
 }
 

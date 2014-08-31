@@ -76,9 +76,23 @@ class AstWhile : AstNode
 
 	const string LoopMarker = "while: loop marker";
 
+	/// <summary>
+	/// Returns true if this step represents the marker that ends the whole while loop.
+	/// </summary>
 	static public bool IsLoopMarker( Step step )
 	{
 		return step.description == LoopMarker;
+	}
+
+	const string BlockMarker = "while: next block runner";
+
+	/// <summary>
+	/// Returns true if this step represents the marker that will start a new loop iteration.
+	/// </summary>
+	/// <remarks>The marker itself should be left on.</remarks>
+	static public bool IsBlockMarker( Step step )
+	{
+		return step.description == BlockMarker;
 	}
 
 	public override void run( State state )

@@ -96,6 +96,7 @@ class CoralGrammar : Grammar
 		var BreakStmt = new NonTerminal( "BreakStmt", typeof( AstBreak ) );
 		var PassStmt = new NonTerminal( "PassStmt", typeof( AstPass ) );
 		var WhileStmt = new NonTerminal( "WhileStmt", typeof( AstWhile ) );
+		var ContinueStmt = new NonTerminal( "ContinueStmt", typeof( AstContinue ) );
 		var ArrayAccess = new NonTerminal( "ArrayAccess", typeof( AstArrayAccess ) );
 		var ArraySliceFull = new NonTerminal( "ArraySliceFull", typeof( AstArraySlice ) );
 		var ArraySliceFromStart = new NonTerminal( "ArraySliceFromStart", typeof( AstArraySlice ) );
@@ -187,6 +188,7 @@ class CoralGrammar : Grammar
 			| Expr
 			| ReturnStmt
 			| BreakStmt
+			| ContinueStmt
 			| Empty;
 
 		ReturnStmt.Rule
@@ -258,6 +260,7 @@ class CoralGrammar : Grammar
 			| "for" + AssignmentStmt + comma + Expr + comma + Expr + colon + Eos + Block;
 
 		BreakStmt.Rule = "break";
+		ContinueStmt.Rule = "continue";
 		PassStmt.Rule = "pass";
 
 		WhileStmt.Rule
