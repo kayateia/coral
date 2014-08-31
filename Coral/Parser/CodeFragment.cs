@@ -71,6 +71,46 @@ public class CodeFragment
 		get; private set;
 	}
 
+	/// <summary>
+	/// Returns true if this code fragment contains only function defs at its top level.
+	/// </summary>
+	/// <returns></returns>
+	public bool verifyOnlyDefs()
+	{
+		if( this.root is AstFunc )
+			return true;
+		else if( this.root is AstStatements )
+		{
+			var stmts = (AstStatements)this.root;
+			return stmts.children.All( s => s is AstFunc );
+		}
+		else
+			return false;
+	}
+
+	/// <summary>
+	/// If we already have errors, this does nothing. Otherwise if verifyOnlyDefs()
+	/// returns false, we switch to an error mode with a single error stating that.
+	/// </summary>
+	public void errorIfNotOnlyDefs()
+	{
+		if( !this.success )
+			return;
+
+		if( !verifyOnlyDefs() )
+		{
+			this.errors = new Error[]
+			{
+				new Error()
+				{
+					line = 1,
+					col = 1,
+					message = "Script may not include anything beside function definitions"
+				}
+			};
+		}
+	}
+
 	internal CodeFragment( Irony.Parsing.ParseTree tree, string unitName )
 	{
 		var errors = new List<Error>();
