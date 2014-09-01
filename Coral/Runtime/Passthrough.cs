@@ -260,6 +260,10 @@ public class Passthrough
 						act.callback( st );
 					}, "async: callback" ) );
 				break;
+
+			case AsyncAction.Action.PushScope:
+				state.pushActionAndScope( new Step( null, st => {}, "custom scope" ), act.scope );
+				break;
 			}
 		}
 	}
