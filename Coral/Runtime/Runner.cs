@@ -108,10 +108,17 @@ public class Runner
 	/// <summary>
 	/// Sets a callback that will be called whenever a scope can't find an object.
 	/// </summary>
-	/// <param name="lookup"></param>
 	public void setScopeCallback( Func<string, object> lookup )
 	{
 		_state.setScopeCallback( s => lookup( s ) );
+	}
+
+	/// <summary>
+	/// Pushes a custom scope onto the stack.
+	/// </summary>
+	public void pushScope( IScope scope )
+	{
+		_state.pushActionAndScope( new Step( null, a => {}, "custom scope" ), scope );
 	}
 
 	/// <summary>

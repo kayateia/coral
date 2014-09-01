@@ -25,13 +25,14 @@ using System.Linq;
 
 /// <summary>
 /// Implementation of IScope that implements a constant scope. This is for read-only
-/// compiler/runtime constants that scripts can use, but which can't be modified. It
-/// should be at the root.
+/// compiler/runtime constants that scripts can use, but which can't be modified. One
+/// of these should be at the root.
 /// </summary>
 public class ConstScope : IScope
 {
-	public ConstScope()
+	public ConstScope( IScope parent )
 	{
+		_parent = parent;
 	}
 
 	/// <summary>
@@ -45,23 +46,37 @@ public class ConstScope : IScope
 		if( _values.TryGetValue( name, out v ) )
 			return v;
 
+		// Check parents, if any.
+		if( _parent != null )
+		{
+			v = _parent.get( name );
+			if( v != null )
+				return v;
+		}
+
 		// Invalid variable. Since we'll be at the bottom, we need to handle this.
 		return null;
 	}
 
 	public bool has( string name )
 	{
-		return _values.ContainsKey( name );
+		return _values.ContainsKey( name ) || (_parent != null && _parent.has( name ));
 	}
 
 	public void set( string name, object value )
 	{
-		throw CoralException.GetInvOp( "Can't set a Coral constant" );
+		if( _parent == null || _values.ContainsKey( name ) )
+			throw CoralException.GetInvOp( "Can't set a Coral constant" );
+		else if( _parent != null )
+			_parent.set( name, value );
 	}
 
 	public void delete( string name )
 	{
-		throw CoralException.GetInvOp( "Can't delete a Coral constant" );
+		if( _parent == null || _values.ContainsKey( name ) )
+			throw CoralException.GetInvOp( "Can't delete a Coral constant" );
+		else if( _parent != null )
+			_parent.delete( name );
 	}
 
 	public void setConstant( string name, object value )
@@ -71,10 +86,12 @@ public class ConstScope : IScope
 
 	public string[] getNames()
 	{
-		return _values.Keys.ToArray();
+		string[] parentNames = _parent != null ? _parent.getNames() : new string[0];
+		return _values.Keys.Union( parentNames ).ToArray();
 	}
 
 	Dictionary<string, object> _values = new Dictionary<string,object>();
+	IScope _parent;
 }
 
 }

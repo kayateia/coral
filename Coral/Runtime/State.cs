@@ -35,7 +35,7 @@ public class State
 
 		_resultStack = new Stack<object>();
 
-		_constScope = new ConstScope();
+		_constScope = new ConstScope( null );
 		_lookupScope = new LookupScope( _constScope );
 		_rootScope = new StandardScope( _lookupScope );
 
