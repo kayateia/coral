@@ -264,6 +264,10 @@ public class Passthrough
 			case AsyncAction.Action.PushScope:
 				state.pushActionAndScope( new Step( null, st => {}, "custom scope" ), act.scope );
 				break;
+
+			case AsyncAction.Action.PushSecurityContext:
+				state.pushActionAndSecurityContext( new Step( null, st => {}, "" ), act.securityContext );
+				break;
 			}
 		}
 	}

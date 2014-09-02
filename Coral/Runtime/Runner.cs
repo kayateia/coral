@@ -116,9 +116,17 @@ public class Runner
 	/// <summary>
 	/// Pushes a custom scope onto the stack.
 	/// </summary>
-	public void pushScope( IScope scope )
+	public void pushScope( IScope scope, string name = "custom scope" )
 	{
-		_state.pushActionAndScope( new Step( null, a => {}, "custom scope" ), scope );
+		_state.pushActionAndScope( new Step( null, a => {}, name ), scope );
+	}
+
+	/// <summary>
+	/// Pushes a security context onto the stack.
+	/// </summary>
+	public void pushSecurityContext( ISecurityContext context, string name = null )
+	{
+		_state.pushActionAndSecurityContext( new Step( null, a => {}, "" ), context );
 	}
 
 	/// <summary>

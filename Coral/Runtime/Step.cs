@@ -65,6 +65,14 @@ public class Step
 	/// </summary>
 	public IScope scope { get; set; }
 
+	/// <summary>
+	/// If this is non-null, then any steps pushed on the action stack below this
+	/// one should make use of the security context here rather than any previous one.
+	/// This allows us to specify nested security contexts speculatively in the same way
+	/// we do steps to execute.
+	/// </summary>
+	public ISecurityContext securityContext { get; set; }
+
 	public override string ToString()
 	{
 		return this.description;

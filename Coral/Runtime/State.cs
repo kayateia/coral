@@ -83,6 +83,33 @@ public class State
 	}
 
 	/// <summary>
+	/// Returns the current security context, if any.
+	/// </summary>
+	public ISecurityContext securityContext
+	{
+		get
+		{
+			Step s = findAction( step => step.securityContext != null );
+			if( s != null )
+				return s.securityContext;
+			else
+				return null;
+		}
+	}
+
+	/// <summary>
+	/// Returns the full list of security contexts, from most recent to earliest.
+	/// </summary>
+	public ISecurityContext[] getSecurityContextStack()
+	{
+		var cxts = new List<ISecurityContext>();
+		foreach( Step s in _stack )
+			if( s.securityContext != null )
+				cxts.Add( s.securityContext );
+		return cxts.ToArray();
+	}
+
+	/// <summary>
 	/// Sets a callback that will be called whenever a scope can't find an object.
 	/// </summary>
 	/// <param name="lookup"></param>
@@ -114,6 +141,16 @@ public class State
 	public void pushActionAndScope( Step action, IScope scope )
 	{
 		action.scope = scope;
+		_stack.Push( action );
+	}
+
+	/// <summary>
+	/// Push a single action onto the step stack, creating a new security context.
+	/// </summary>
+	public void pushActionAndSecurityContext( Step action, ISecurityContext context )
+	{
+		action.securityContext = context;
+		action.description = "security context: {0}".FormatI( context.name );
 		_stack.Push( action );
 	}
 
