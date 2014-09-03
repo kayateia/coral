@@ -43,7 +43,7 @@ class AstMemberAccess : AstNode
 		base.convert( node, c );
 		if( node.Term.Name == "MemberAccess" )
 		{
-			if( node.ChildNodes[0].Token.Text == "$" )
+			if( node.ChildNodes[0].Token != null && node.ChildNodes[0].Token.Text == "$" )
 				this.rvalue = new AstIdentifier( "$" );
 			else
 				this.rvalue = c.convertNode( node.ChildNodes[0] );
