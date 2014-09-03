@@ -192,6 +192,7 @@ public class Runner
 
 		// Built-in objects.
 		StringObject.RegisterObject( _state.constScope );
+		MathObject.RegisterObject( _state.constScope );
 	}
 
 	/// <summary>
