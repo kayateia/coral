@@ -45,7 +45,7 @@ public class LookupScope : IScope
 
 		object v = this.lookup( name );
 		if( v != null )
-			return v;
+			return Util.CoerceFromDotNet( v );
 
 		return _parent.get( name );
 	}
