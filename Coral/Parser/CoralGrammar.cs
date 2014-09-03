@@ -167,6 +167,7 @@ class CoralGrammar : Grammar
 			| "||"
 			| "&&"
 			| "+="
+			| "%"
 			;
 
 		PrePostOp.Rule
@@ -305,7 +306,7 @@ class CoralGrammar : Grammar
 		RegisterOperators( 3, "==", "!=" );
 		RegisterOperators( 4, "<", ">", "<=", ">=" );
 		RegisterOperators( 5, "+", "-" );
-		RegisterOperators( 6, "*", "/" );
+		RegisterOperators( 6, "*", "/", "%" );
 		RegisterOperators( 7, Associativity.Right, "**" );
 		RegisterOperators( 12, "++", "--" );
 

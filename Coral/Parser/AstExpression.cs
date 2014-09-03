@@ -43,7 +43,8 @@ class AstExpression : AstNode
 		{ "==", (a,b) => DoEquals( a, b ) },
 		{ "!=", (a,b) => !((bool)DoEquals( a, b )) },
 		{ "||", (a,b) => Util.CoerceBool( a ) || Util.CoerceBool( b ) },
-		{ "&&", (a,b) => Util.CoerceBool( a ) && Util.CoerceBool( b ) }
+		{ "&&", (a,b) => Util.CoerceBool( a ) && Util.CoerceBool( b ) },
+		{ "%", (a,b) => Util.CoerceNumber( a ) % Util.CoerceNumber( b ) }
 	};
 
 	/// <summary>
