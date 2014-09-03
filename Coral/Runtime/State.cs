@@ -71,6 +71,18 @@ public class State
 	}
 
 	/// <summary>
+	/// The base scope, below any other standard scopes. This is useful if you
+	/// want to make a scope that includes nothing previously on the stack.
+	/// </summary>
+	public IScope baseScope
+	{
+		get
+		{
+			return _lookupScope;
+		}
+	}
+
+	/// <summary>
 	/// A miscellaneous scope that you can set arbitrary values into, to keep
 	/// client app metadata along with the state.
 	/// </summary>
