@@ -38,8 +38,6 @@ public class Step
 		this.node = n;
 		this.action = a;
 		this.description = d;
-		if( this.description == null )
-			this.description = n.ToString();
 	}
 
 	/// <summary>
@@ -56,7 +54,21 @@ public class Step
 	/// <summary>
 	/// Description of the step. This will be filled from AstNode if not passed in.
 	/// </summary>
-	public string description { get; set; }
+	public string description {
+		get
+		{
+			if( _description == null )
+				return this.node.ToStringI();
+			else
+				return _description;
+		}
+
+		set
+		{
+			_description = value;
+		}
+	}
+	string _description = null;
 
 	/// <summary>
 	/// If this is non-null, then any steps pushed on the action stack below this
