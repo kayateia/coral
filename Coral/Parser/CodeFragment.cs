@@ -111,6 +111,17 @@ public class CodeFragment
 		}
 	}
 
+	/// <summary>
+	/// Returns true if this fragment contains any code at all; false if it's all comments and whitespace.
+	/// </summary>
+	public bool containsAnyCode
+	{
+		get
+		{
+			return this.root != null && this.root is AstStatements && ((AstStatements)this.root).children.Count > 0;
+		}
+	}
+
 	internal CodeFragment( Irony.Parsing.ParseTree tree, string unitName )
 	{
 		var errors = new List<Error>();
