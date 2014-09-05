@@ -60,7 +60,6 @@ class CoralGrammar : Grammar
 
 		// 2. Non-terminals
 		var Expr = new NonTerminal( "Expr" );
-		var NotExpr = new NonTerminal( "NotExpr", typeof( AstExpression ) );
 		var Term = new NonTerminal( "Term" );
 		var PoundRef = new NonTerminal( "PoundRef", typeof( AstIdentifier ) );
 		var BinExpr = new NonTerminal( "BinExpr", typeof( AstExpression ) );
@@ -68,9 +67,6 @@ class CoralGrammar : Grammar
 		var UnExpr = new NonTerminal( "UnExpr", typeof( AstExpression ) );
 		var UnOp = new NonTerminal( "UnOp", "operator" );
 		var BinOp = new NonTerminal( "BinOp", "operator" );
-		var PrePostOp = new NonTerminal( "PrePostOp", "operator" );
-		var PreOpExpr = new NonTerminal( "PreOpExpr" );
-		var PostOpExpr = new NonTerminal( "PostOpExpr" );
 		var AssignmentStmt = new NonTerminal( "AssignmentStmt", typeof( AstAssignment ) );
 		var Stmt = new NonTerminal( "Stmt" );
 		var ExtStmt = new NonTerminal( "ExtStmt" );
@@ -111,45 +107,42 @@ class CoralGrammar : Grammar
 
 		// 3. BNF rules
 		//Eos is End-Of-Statement token produced by CodeOutlineFilter
-		NotExpr.Rule
-			= "!" + Expr
-			;
-
 		Expr.Rule
 			= Term
 			| UnExpr
 			| BinExpr
-			| PreOpExpr
-			| PostOpExpr
-			| PoundRef
-			| MemberAccess
-			| ArrayExpr
-			| FunctionCall
-			| FunctionDef
-			| DictExpr
-			| ArrayAccess
-			| ArraySliceFull
-			| ArraySliceFromStart
-			| ArraySliceFromEnd;
+			;
 
 		Term.Rule
 			= number
 			| dollar
 			| ParExpr
-			| NotExpr
 			| identifier
-			| str;
+			| MemberAccess
+			| PoundRef
+			| ArrayExpr
+			| FunctionCall
+		//	| FunctionDef
+			| DictExpr
+			| ArrayAccess
+			| ArraySliceFull
+			| ArraySliceFromStart
+			| ArraySliceFromEnd
+			| str
+			;
 
 		PoundRef.Rule = "#" + number;
 
-		MemberAccess.Rule = Expr + "." + identifier;
+		MemberAccess.Rule = Term + "." + identifier;
 
 		ParExpr.Rule = "(" + Expr + ")";
 
 		UnExpr.Rule = UnOp + Term;
 		UnOp.Rule
 			= ToTerm( "+" )
-			| "-";
+			| "-"
+			| "!"
+			;
 
 		BinExpr.Rule = Expr + BinOp + Expr;
 		BinOp.Rule
@@ -170,16 +163,6 @@ class CoralGrammar : Grammar
 			| "%"
 			;
 
-		PrePostOp.Rule
-			= ToTerm( "--" )
-			| "++";
-		PreOpExpr.Rule
-			= PrePostOp + identifier
-			| PrePostOp + MemberAccess;
-		PostOpExpr.Rule
-			= identifier + PrePostOp
-			| MemberAccess + PrePostOp;
-
 		AssignmentStmt.Rule
 			= identifier + "=" + Expr
 			| MemberAccess + "=" + Expr
@@ -191,7 +174,9 @@ class CoralGrammar : Grammar
 			| ReturnStmt
 			| BreakStmt
 			| ContinueStmt
-			| Empty;
+			| ThrowStmt
+			| Empty
+			;
 
 		ReturnStmt.Rule
 			= "return" + Expr
@@ -203,8 +188,12 @@ class CoralGrammar : Grammar
 			| "if" + Expr + colon + Eos + Block + ElifClauses
 			| "if" + Expr + colon + Eos + Block + ElifClauses + ElseClause;
 		ElifClauses.Rule = MakeStarRule( ElifClauses, null, ElifClause );
-		ElifClause.Rule = "elif" + Expr + colon + Eos + Block;
-		ElseClause.Rule = "else" + colon + Eos + Block;
+		ElifClause.Rule
+			= "elif" + Expr + colon + Eos + Block
+			;
+		ElseClause.Rule
+			= "else" + colon + Eos + Block
+			;
 
 		TryStmt.Rule
 			= "try" + colon + Eos + Block + ExceptClause
@@ -214,7 +203,6 @@ class CoralGrammar : Grammar
 			= "except" + colon + Eos + Block
 			| "except" + identifier + colon + Eos + Block
 			;
-		//ExceptClauses.Rule = MakeStarRule( ExceptClauses, null, ExceptClause );
 
 		FinallyClause.Rule = "finally" + colon + Eos + Block;
 
@@ -227,7 +215,6 @@ class CoralGrammar : Grammar
 			| FunctionDef
 			| IfStmt
 			| TryStmt
-			| ThrowStmt
 			| ForInStmt
 			| ForStmt
 			| WhileStmt
