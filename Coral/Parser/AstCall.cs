@@ -125,10 +125,11 @@ class AstCall : AstNode
 				st.pushAction( new Step( this, st2 => st2.pushResult( null ), "call: result pusher" ) );
 
 				// Set a second scope with just the parameters.
-				IScope callScope = new ParameterScope( st.scope, fv.func.parameters );
+				IScope callScope = new ParameterScope( st.scope,
+					fv.func.parameters.Union( new string[] { "arguments" } ).ToArray()  );
 				st.pushActionAndScope( new Step( this, a => {}, "call: parameter scope" ), callScope );
 
-				st.scope.set( "arguments", argsArray );
+				callScope.set( "arguments", argsArray );
 				for( int i=0; i<argsArray.Count; ++i )
 					if( i < fv.func.parameters.Length )
 					{
