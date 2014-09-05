@@ -73,8 +73,8 @@ public class ConstScope : IScope
 
 	public void delete( string name )
 	{
-		if( _parent == null || _values.ContainsKey( name ) )
-			throw CoralException.GetInvOp( "Can't delete a Coral constant" );
+		if( _values.ContainsKey( name ) )
+			throw CoralException.GetInvOp( "Can't delete Coral constant '{0}'".FormatI( name ) );
 		else if( _parent != null )
 			_parent.delete( name );
 	}
