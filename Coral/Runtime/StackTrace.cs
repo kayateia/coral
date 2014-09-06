@@ -98,7 +98,7 @@ public class StackTrace
 	{
 		if( this.frames == null )
 			return "<empty>";
-		return String.Join( "\r\n", this.frames.Select( f => "  at " + f.ToString() ).ToArray() );
+		return String.Join( "\n", this.frames.Select( f => "  at " + f.ToString() ).ToArray() );
 	}
 }
 
