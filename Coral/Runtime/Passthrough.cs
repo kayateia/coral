@@ -73,6 +73,11 @@ public class Passthrough
 		public PassthroughMetalObject() { }
 
 		public object innerObject { get; set; }
+
+		public override string ToString()
+		{
+			return this.innerObject.ToStringI();
+		}
 	}
 
 	/// <summary>
