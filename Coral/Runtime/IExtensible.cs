@@ -54,6 +54,12 @@ public interface IExtensible
 	/// Checks to see if a property is available.
 	/// </summary>
 	bool hasMethod( State state, string name );
+
+	/// <summary>
+	/// Gives this object an opportunity to convert its exceptions into CoralExceptions.
+	/// This is useful to avoid having to use CoralExceptions for passthrough methods
+	/// </summary>
+	CoralException filterException( System.Exception ex );
 }
 
 }

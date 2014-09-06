@@ -39,6 +39,7 @@ public class CoralException : System.Exception
 	public const string ArgumentException = "arg_exception";
 	public const string InvalidOperationException = "invop_exception";
 	public const string InvalidProgramException = "invprog_exception";
+	public const string UnknownException = "unknown_exception";
 
 	static public CoralException GetArg( string message )
 	{
@@ -63,6 +64,14 @@ public class CoralException : System.Exception
 				{ "message", message }
 			}
 		);
+	}
+
+	/// <summary>
+	/// This is the suggested default exception handling.
+	/// </summary>
+	static public CoralException GetForAny( Exception ex )
+	{
+		return CoralException.GetForName( UnknownException, ex.Message );
 	}
 
 	/// <summary>

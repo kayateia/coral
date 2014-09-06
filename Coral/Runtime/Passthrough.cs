@@ -160,7 +160,7 @@ public class Passthrough
 					ParameterInfo[] ps = m.GetParameters();
 					if( ps.Length == 1 && ps[0].ParameterType == typeof( object[] ) )
 					{
-						st.pushResult( m.Invoke( _obj, new object[] { args } ) );
+						handleTargetExceptions( () => st.pushResult( m.Invoke( _obj, new object[] { args } ) ) );
 						return;
 					}
 
@@ -171,12 +171,15 @@ public class Passthrough
 					for( int i=0; i<args.Length; ++i )
 						coerced[i] = Util.CoerceToDotNet( ps[i].ParameterType, args[i] );
 
-					// If we're still trucking here, then we've got everything we need.
-					// TODO: We'll eventually need to do exception filtering here too.
-					object rv = m.Invoke( _obj, coerced );
+					handleTargetExceptions( () =>
+					{
+						// If we're still trucking here, then we've got everything we need.
+						// TODO: We'll eventually need to do exception filtering here too.
+						object rv = m.Invoke( _obj, coerced );
 
-					// Now we have to go the other way.
-					st.pushResult( Util.CoerceFromDotNet( rv ) );
+						// Now we have to go the other way.
+						st.pushResult( Util.CoerceFromDotNet( rv ) );
+					} );
 				}
 			);
 		}
@@ -185,7 +188,7 @@ public class Passthrough
 		PropertyInfo p = getTaggedProperty( name );
 		if( p != null )
 		{
-			object rv = p.GetValue( _obj, null );
+			object rv = handleTargetExceptions( () => p.GetValue( _obj, null ) );
 			return Util.CoerceFromDotNet( rv );
 		}
 
@@ -199,7 +202,7 @@ public class Passthrough
 					for( int i=0; i<args.Length; ++i )
 						coerced[i] = Util.CoerceToDotNet( typeof( object ), args[i] );
 
-					object rv = ext.callMethod( state, name, coerced );
+					object rv = handleTargetExceptions( () => ext.callMethod( state, name, coerced ) );
 
 					if( rv is AsyncAction || rv is AsyncAction[] )
 						handleAsyncActions( state, rv );
@@ -210,7 +213,7 @@ public class Passthrough
 		}
 		if( ext != null && ext.hasProperty( state, name ) )
 		{
-			object rv = ext.getProperty( state, name );
+			object rv = handleTargetExceptions( () => ext.getProperty( state, name ) );
 			return Util.CoerceFromDotNet( rv );
 		}
 
@@ -274,24 +277,59 @@ public class Passthrough
 
 	void doMemberWrite( State state, string name, object val )
 	{
+		var ext = _obj as IExtensible;
+
 		PropertyInfo p = getTaggedProperty( name );
 		if( p != null )
 		{
 			object cv = Util.CoerceToDotNet( p.PropertyType, val );
-			p.SetValue( _obj, cv, null );
+			handleTargetExceptions( () => p.SetValue( _obj, cv, null ) );
 			return;
 		}
 
 		// Is it an extensible object?
-		var ext = _obj as IExtensible;
 		if( ext != null && ext.hasProperty( state, name ) )
 		{
-			ext.setProperty( state, name, Util.CoerceToDotNet( typeof( object ), val ) );
+			handleTargetExceptions( () => ext.setProperty( state, name, Util.CoerceToDotNet( typeof( object ), val ) ) );
 			return;
 		}
 
 		// This really shouldn't happen.
 		throw CoralException.GetInvOp( "Member doesn't exist (invalid)" );
+	}
+
+	// Wraps calls to Invoke() and friends to take care of exception filtering.
+	void handleTargetExceptions( Action code )
+	{
+		handleTargetExceptions<object>( () =>
+			{
+				code();
+				return null;
+			}
+		);
+	}
+
+	T handleTargetExceptions<T>( Func<T> code )
+	{
+		var ext = _obj as IExtensible;
+		try
+		{
+			return code();
+		}
+		catch( TargetInvocationException ex )
+		{
+			if( ext != null )
+				throw ext.filterException( ex.InnerException );
+			else
+				throw ex.InnerException;
+		}
+		catch( Exception ex )
+		{
+			if( ext != null )
+				throw ext.filterException( ex );
+			else
+				throw ex;
+		}
 	}
 
 	object _obj;

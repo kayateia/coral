@@ -80,7 +80,7 @@ public class Runner
 			catch( Exception ex )
 			{
 				// Wrap anything else (e.g. div by zero) as an invalid operation exception and do normal processing.
-				var cex = CoralException.GetInvOp( ex.Message );
+				var cex = CoralException.GetForAny( ex );
 				if( cex.trace == null )
 					cex.setStackTrace( _state );
 				AstTry.ThrowException( _state, cex );
