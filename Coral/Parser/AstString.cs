@@ -43,6 +43,7 @@ class AstString : AstNode
 			this.value = this.value.Replace( "\\n", "\n" );
 			this.value = this.value.Replace( "\\r", "\r" );
 			this.value = this.value.Replace( "\\t", "\t" );
+			this.value = this.value.Replace( "\\\"", "\"" );
 			this.value = this.value.Replace( "\\\\", "\\" );
 
 			return true;
