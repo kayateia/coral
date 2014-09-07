@@ -44,6 +44,12 @@ public class MathObject
 			return m_rand.Next() % max;
 	}
 
+	[CoralPassthrough]
+	public string sha1( string input )
+	{
+		return input.Sha1Hash();
+	}
+
 	Random m_rand = new Random();
 }
 
