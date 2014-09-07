@@ -76,6 +76,11 @@ class AstFor : AstNode
 				NextIterationMarker )
 			);
 		}
+		else
+		{
+			// This is still needed to make continue work.
+			state.pushAction( new Step( this, st => {}, NextIterationMarker ) );
+		}
 
 		this.block.run( state );
 
