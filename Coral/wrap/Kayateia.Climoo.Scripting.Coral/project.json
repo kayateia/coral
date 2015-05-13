@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net40": {
+      "wrappedProject": "../../Coral.csproj",
+      "bin": {
+        "assembly": "../../obj/{configuration}/Kayateia.Climoo.Scripting.Coral.dll",
+        "pdb": "../../obj/{configuration}/Kayateia.Climoo.Scripting.Coral.pdb"
+      },
+      "dependencies": {
+        "Kayateia.Climoo.Base": "1.0.0-*",
+        "Irony": "1.0.0-*"
+      }
+    }
+  }
+}

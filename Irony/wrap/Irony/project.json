@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net40-Client": {
+      "wrappedProject": "../../Irony.csproj",
+      "bin": {
+        "assembly": "../../obj/{configuration}/Irony.dll",
+        "pdb": "../../obj/{configuration}/Irony.pdb"
+      }
+    }
+  }
+}
